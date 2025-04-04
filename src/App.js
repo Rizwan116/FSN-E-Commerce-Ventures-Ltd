@@ -13,12 +13,12 @@ function App() {
         <HeaderBar />
         <Navbar />
        
-      {/* <div className="content">
+      <div className="content">
        
       <Home />
     
         
-      </div> */}
+      </div>
 
     
       
