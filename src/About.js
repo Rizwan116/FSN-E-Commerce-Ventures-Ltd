@@ -63,11 +63,15 @@ const About = () => {
   return (
     <section className="about-us-section">
       <h2 className="about-us-title">About Us</h2>
-      <div className="about-us-container">
+      <span>Lorem Ipsum dolor sit amet, consectetuer adipicing</span>
+      <br/>
+      <br/>
+      <button className="about-us-title-button" href="">SHOP NOW</button>
+      {/* <div className="about-us-container">
         {aboutData.map((item, index) => (
           <AboutUsCard key={index} {...item} />
         ))}
-      </div>
+      </div> */}
     </section>
   );
 };

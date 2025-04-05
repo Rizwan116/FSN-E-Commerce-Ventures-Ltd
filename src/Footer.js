@@ -1,55 +1,59 @@
 import React from "react";
-import { FaFacebookF, FaInstagram, FaLinkedinIn } from "react-icons/fa";
+import { Link } from "react-router-dom";
+import { FaFacebookF, FaInstagram, FaLinkedinIn, FaPinterestP, FaYoutube } from "react-icons/fa";
+import { FaXTwitter } from "react-icons/fa6";
+import logo from "./assets/Asset8.png";
+// import { Link } from "react-router-dom";
 
 const Footer = () => {
   return (
     <footer className="footer">
-      <div className="footer-container">
-        <div className="footer-column">
-          <h3 className="footer-heading">Shop</h3>
-          <ul className="footer-list">
-            <li>tender lip nectar</li>
-            <li><em>inbalance</em></li>
-            <li>in my defence</li>
-            <li>hustle</li>
-            <li>good grease</li>
-            <li>eyes & shine</li>
-            <li><em>unkissed</em></li>
-          </ul>
-        </div>
-
-        <div className="footer-column">
-          <h3 className="footer-heading">Learn</h3>
-          <ul className="footer-list">
-            <li>About Us</li>
-            <li>Geek Lab</li>
-            <li>Press</li>
-            <li>Blog</li>
-            <li>Contact Us</li>
-          </ul>
-        </div>
-
-        <div className="footer-column">
-          <h3 className="footer-heading">Support</h3>
-          <p>Drop us a note :</p>
-          <p className="footer-email"><strong>support@dyou.co</strong></p>
-        </div>
-
-        <div className="footer-column">
-          <h3 className="footer-heading">Quick links</h3>
-          <ul className="footer-list">
-            <li>Store Locator</li>
-            <li>Terms & Conditions</li>
-            <li>Privacy Policy</li>
-            <li>Order & Shipping Policy</li>
-          </ul>
+      <div className="footer-logo">
+        {/* Logo */}
+        <div className="logo-container">
+        <Link to="/">
+    <img src={logo} alt="logo" />
+  </Link>
         </div>
       </div>
 
       <div className="footer-social">
-        <button className="social-icon"><FaFacebookF /></button>
-        <button className="social-icon"><FaInstagram /></button>
-        <button className="social-icon"><FaLinkedinIn /></button>
+  <a href="https://www.facebook.com" target="_blank" rel="noopener noreferrer" className="social-icon"><FaFacebookF /></a>
+  <a href="https://www.instagram.com" target="_blank" rel="noopener noreferrer" className="social-icon"><FaInstagram /></a>
+  <a href="https://www.pinterest.com" target="_blank" rel="noopener noreferrer" className="social-icon"><FaPinterestP /></a>
+  <a href="https://www.youtube.com" target="_blank" rel="noopener noreferrer" className="social-icon"><FaYoutube /></a>
+  <a href="https://twitter.com" target="_blank" rel="noopener noreferrer" className="social-icon"><FaXTwitter /></a>
+  <a href="https://www.linkedin.com" target="_blank" rel="noopener noreferrer" className="social-icon"><FaLinkedinIn /></a>
+</div>
+
+      <div className="footer-container">
+        {/* Keep this section commented as requested */}
+        {/* <div className="footer-column">...</div> */}
+
+        <div className="footer-column">
+          {/* <h3 className="footer-heading">Learn</h3> */}
+          <ul className="footer-list">
+            <li><Link to="/our-story">Our Story</Link></li>
+            <li><Link to="/press">Press</Link></li>
+            <li><Link to="/records">RANAVAT Records</Link></li>
+            <li><Link to="/store-locator">Store Locator</Link></li>
+          </ul>
+        </div>
+
+        <div className="footer-column">
+          {/* <h3 className="footer-heading">Quick links</h3> */}
+          <ul className="footer-list">
+            <li><Link to="/account">My Account</Link></li>
+            <li><Link to="/track-order">Track Your Order</Link></li>
+            <li><Link to="/subscription">Subscription</Link></li>
+            <li><Link to="/royal-rewards">Royal Rewards</Link></li>
+            <li><Link to="/concierge">Beauty Concierge</Link></li>
+            <li><Link to="/refer">Refer a Friend</Link></li>
+            <li><Link to="/faqs">FAQs</Link></li>
+            <li><Link to="/contact">Contact Us</Link></li>
+            <li><Link to="/accessibility">Accessibility</Link></li>
+          </ul>
+        </div>
       </div>
     </footer>
   );

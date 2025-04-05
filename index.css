@@ -2,13 +2,14 @@
 
 /* base styles */
 body {
-  font-family: Montserrat, sans-serif !important;  margin: 0;
+  font-family: 'CeraPRO', sans-serif;
+  margin: 0;
   padding: 0;
   background: linear-gradient(to bottom, #c2d9ff, #ffffff);
 }
 * {
   margin: 0;
-  font-family: "Quicksand";
+  font-family: 'CeraPRO', sans-serif;
   color: #333;
   
 }
