@@ -63,12 +63,9 @@
 //   );
 // };
 
-// export default Signup;
-
-// Signup.js
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { auth, database } from './firebase'; // ✅ Make sure auth and database are correctly exported from firebase.js
+import { auth, database } from './firebase';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { ref as dbRef, set, get } from 'firebase/database';
 
@@ -112,22 +109,23 @@ const Signup = () => {
         return;
       }
 
-      const userCredential = await createUserWithEmailAndPassword(auth, form.email, form.password);
-      const user = userCredential.user;
+      // Create user in Firebase Auth (optional)
+      await createUserWithEmailAndPassword(auth, form.email, form.password);
 
       const newUser = {
         firstName: form.firstName,
         lastName: form.lastName,
         phone: form.phone,
         email: form.email,
+        password: form.password, // ⚠️ Note: storing plain text passwords is not recommended
         photo: ""
       };
 
-      await set(dbRef(database, "users/" + user.uid), newUser);
+      await set(userRef, newUser);
       localStorage.setItem("user", JSON.stringify(newUser));
 
       alert("✅ Signup successful!");
-      navigate("/account");
+      navigate("/login");
     } catch (error) {
       console.error("Signup error:", error);
       alert("❌ Signup failed: " + error.message);
@@ -145,7 +143,7 @@ const Signup = () => {
           localStorage.setItem("user", JSON.stringify(user));
           navigate("/account");
         } else {
-          alert("❌ Incorrect email or password");
+          alert("❌ Incorrect password");
         }
       } else {
         alert("❌ User not found");
@@ -173,3 +171,4 @@ const Signup = () => {
 };
 
 export default Signup;
+

@@ -1,6 +1,10 @@
-function TrackOrder() {
-    return <h1>My TrackOrder Page</h1>;
-  }
-  
-  export default TrackOrder;
-  
+const TrackOrder = () => {
+  return (
+    <div style={{ padding: '20px' }}>
+      <h2>📦 Track Your Order</h2>
+      <p>Order tracking details coming soon...</p>
+    </div>
+  );
+};
+
+export default TrackOrder;

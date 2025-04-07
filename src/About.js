@@ -66,7 +66,7 @@ const About = () => {
       <span>Lorem Ipsum dolor sit amet, consectetuer adipicing</span>
       <br/>
       <br/>
-      <button className="about-us-title-button" href="">SHOP NOW</button>
+      <a className="about-us-title-button" href="">SHOP NOW</a>
       {/* <div className="about-us-container">
         {aboutData.map((item, index) => (
           <AboutUsCard key={index} {...item} />

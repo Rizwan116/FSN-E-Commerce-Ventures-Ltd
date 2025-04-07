@@ -74,6 +74,7 @@ const cartSlice = createSlice({
       updateLocalStorage(state);
     },
 
+    // ✅ Added clearCart reducer
     clearCart: (state) => {
       state.items = [];
       state.totalQuantity = 0;
@@ -88,7 +89,7 @@ export const {
   removeFromCart,
   increaseQuantity,
   decreaseQuantity,
-  clearCart,
+  clearCart, // ✅ Exported clearCart
 } = cartSlice.actions;
 
 export default cartSlice.reducer;

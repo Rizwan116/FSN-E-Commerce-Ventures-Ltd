@@ -44,6 +44,7 @@ const Footer = () => {
           {/* <h3 className="footer-heading">Quick links</h3> */}
           <ul className="footer-list">
             <li><Link to="/account">My Account</Link></li>
+            <li><Link to="/order-details">Order Details</Link></li>
             <li><Link to="/track-order">Track Your Order</Link></li>
             <li><Link to="/subscription">Subscription</Link></li>
             <li><Link to="/royal-rewards">Royal Rewards</Link></li>

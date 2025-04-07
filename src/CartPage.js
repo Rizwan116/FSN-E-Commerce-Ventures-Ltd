@@ -14,9 +14,11 @@ import {
   faCheckCircle,
 } from "@fortawesome/free-solid-svg-icons";
 import { toast } from "react-toastify";
+import { useNavigate } from "react-router-dom"; // ✅ import useNavigate
 
 function CartPage() {
   const dispatch = useDispatch();
+  const navigate = useNavigate(); // ✅ initialize navigate
   const cartItems = useSelector((state) => state.cart.items);
 
   const cleanPrice = (price) => {
@@ -48,8 +50,13 @@ function CartPage() {
   };
 
   const handleCheckout = () => {
-    toast.success("Checkout completed ✅");
-    dispatch(clearCart());
+    // ✅ Navigate to Billing page and pass cart details
+    navigate("/billing", {
+      state: {
+        cartItems,
+        totalAmount,
+      },
+    });
   };
 
   return (
@@ -75,43 +82,37 @@ function CartPage() {
                   </h4>
 
                   <div className="price-list">
-                  <h5 className="price">
-                    Price: ₹{cleanPrice(item.price).toFixed(2)}
-                </h5>
+                    <h5 className="price">
+                      Price: ₹{cleanPrice(item.price).toFixed(2)}
+                    </h5>
 
-                <h6 className="item-total">
-   Total: ₹
-   {(cleanPrice(item.price) * item.quantity).toFixed(2)}
- </h6>
- </div>
-
-
-                <div className="flex-1">
-                <div className="qty-controls">
-                    <button onClick={() => handleDecrease(item.id)}>
-                      <FontAwesomeIcon icon={faMinus} />
-                    </button>
-                    <span>{item.quantity}</span>
-                    <button onClick={() => handleIncrease(item)}>
-                      <FontAwesomeIcon icon={faPlus} />
-                    </button>
+                    <h6 className="item-total">
+                      Total: ₹
+                      {(cleanPrice(item.price) * item.quantity).toFixed(2)}
+                    </h6>
                   </div>
 
-                  <button
-                    className="remove-btn"
-                    onClick={() => handleRemove(item.id)}
-                  >
-                    <FontAwesomeIcon icon={faTrash} /> Remove
-                  </button>
+                  <div className="flex-1">
+                    <div className="qty-controls">
+                      <button onClick={() => handleDecrease(item.id)}>
+                        <FontAwesomeIcon icon={faMinus} />
+                      </button>
+                      <span>{item.quantity}</span>
+                      <button onClick={() => handleIncrease(item)}>
+                        <FontAwesomeIcon icon={faPlus} />
+                      </button>
+                    </div>
+
+                    <button
+                      className="remove-btn"
+                      onClick={() => handleRemove(item.id)}
+                    >
+                      <FontAwesomeIcon icon={faTrash} /> Remove
+                    </button>
+                  </div>
                 </div>
-                
-                </div>
 
-                <div className="flexing">
-
-
-
-</div>
+                <div className="flexing"></div>
               </div>
             ))}
           </div>

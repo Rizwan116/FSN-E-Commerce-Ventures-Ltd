@@ -141,7 +141,6 @@
 // }
 
 // export default Account;
-
 // Account.js
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
@@ -164,7 +163,8 @@ function Account() {
     lastName: "",
     phone: "",
     email: "",
-    photo: ""
+    photo: "",
+    password: ""
   });
   const [photoFile, setPhotoFile] = useState(null);
   const [newPassword, setNewPassword] = useState("");
@@ -176,13 +176,27 @@ function Account() {
       return;
     }
 
-    // ✅ Use phone as the DB key
-    const userRef = dbRef(database, "users/" + storedUser.phone);
-    get(userRef).then((snapshot) => {
-      if (snapshot.exists()) {
-        setUserData(snapshot.val());
-      }
-    });
+    const userRef = dbRef(database, `users/${storedUser.phone}`);
+    get(userRef)
+      .then((snapshot) => {
+        if (snapshot.exists()) {
+          const data = snapshot.val();
+
+          const completeUserData = {
+            firstName: data.firstName || "",
+            lastName: data.lastName || "",
+            phone: data.phone || storedUser.phone,
+            email: data.email || storedUser.email || "",
+            photo: data.photo || "",
+            password: data.password || ""
+          };
+
+          setUserData(completeUserData);
+        } else {
+          console.warn("User not found in DB.");
+        }
+      })
+      .catch((err) => console.error("Fetch error:", err));
   }, [navigate]);
 
   const handleChange = (e) => {
@@ -194,7 +208,7 @@ function Account() {
 
   const handleSave = async () => {
     const storedUser = JSON.parse(localStorage.getItem("user"));
-    if (!storedUser || !storedUser.phone) return;
+    if (!storedUser?.phone) return;
 
     const updates = { ...userData };
 
@@ -205,26 +219,25 @@ function Account() {
       updates.photo = downloadURL;
     }
 
-    // ✅ Save updated data
     await set(dbRef(database, `users/${storedUser.phone}`), updates);
-    localStorage.setItem("user", JSON.stringify(updates)); // Update localStorage
+    localStorage.setItem("user", JSON.stringify(updates));
     alert("✅ Profile updated!");
-  };
-
-  const handleLogout = () => {
-    localStorage.removeItem("user");
-    navigate("/login");
   };
 
   const handlePasswordChange = async () => {
     const storedUser = JSON.parse(localStorage.getItem("user"));
-    if (!storedUser || !storedUser.phone || !newPassword) return;
+    if (!storedUser?.phone || !newPassword) return;
 
     const updatedUser = { ...userData, password: newPassword };
     await set(dbRef(database, `users/${storedUser.phone}`), updatedUser);
     localStorage.setItem("user", JSON.stringify(updatedUser));
     setNewPassword("");
     alert("🔐 Password updated!");
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem("user");
+    navigate("/login");
   };
 
   return (
@@ -263,7 +276,12 @@ function Account() {
               src={userData.photo}
               alt="Profile"
               className="profile-pic"
-              style={{ width: "100px", height: "100px", objectFit: "cover", borderRadius: "50%" }}
+              style={{
+                width: "100px",
+                height: "100px",
+                objectFit: "cover",
+                borderRadius: "50%"
+              }}
             />
           )}
           <input
@@ -294,4 +312,3 @@ function Account() {
 }
 
 export default Account;
-
