@@ -27,7 +27,7 @@ import Refer from "./pages/Refer";
 import FAQs from "./pages/FAQs";
 import Contact from "./pages/Contact";
 import Accessibility from "./pages/Accessibility";
-import OurStory from "./pages/OurStory";
+import Blogs from "./pages/Blogs";
 import Press from "./pages/Press";
 import Records from "./pages/Records";
 import StoreLocator from "./pages/StoreLocator";
@@ -63,7 +63,7 @@ const AppRoutes = () => {
           <Route path="/faqs" element={<FAQs />} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/accessibility" element={<Accessibility />} />
-          <Route path="/our-story" element={<OurStory />} />
+          <Route path="/blogs" element={<Blogs />} />
           <Route path="/press" element={<Press />} />
           <Route path="/records" element={<Records />} />
           <Route path="/store-locator" element={<StoreLocator />} />

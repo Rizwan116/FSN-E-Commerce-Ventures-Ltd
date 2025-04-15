@@ -20,7 +20,6 @@ const Billing = () => {
   const [errors, setErrors] = useState({});
   const navigate = useNavigate();
   const dispatch = useDispatch();
-
   const cart = useSelector((state) => state.cart);
 
   const handleChange = (e) => {
@@ -59,7 +58,6 @@ const Billing = () => {
     return Object.keys(newErrors).length === 0;
   };
 
-  // ✅ Improved submit logic with Firebase + navigation fix
   const handleSubmit = async () => {
     if (!validateForm()) return;
 
@@ -69,18 +67,35 @@ const Billing = () => {
       const orderData = {
         ...form,
         cart: cartCopy,
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
       };
 
       const orderRef = dbRef(database, 'orders');
       const newOrderRef = push(orderRef);
       await set(newOrderRef, orderData);
 
-      dispatch(clearCart());
+      // 🔥 Update stock for each item in cart
+      for (const item of cart.items) {
+        const response = await fetch(`https://YOUR_FIREBASE_PROJECT.firebaseio.com/products/${item.id}.json`);
+        const productData = await response.json();
 
+        if (productData && productData.stock != null) {
+          const updatedStock = Math.max(productData.stock - item.quantity, 0);
+
+          await fetch(`https://YOUR_FIREBASE_PROJECT.firebaseio.com/products/${item.id}.json`, {
+            method: 'PATCH',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ stock: updatedStock }),
+          });
+        }
+      }
+
+      dispatch(clearCart());
       alert('✅ Order placed successfully!');
-      // ✅ Corrected route — use route path not file path
       navigate('/order-details', { state: { orderId: newOrderRef.key } });
+
     } catch (error) {
       console.error('❌ Failed to place order:', error);
       alert('❌ Something went wrong while placing the order!');

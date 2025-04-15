@@ -8,6 +8,7 @@ import logo from "./assets/Asset8.png";
 const Footer = () => {
   return (
     <footer className="footer">
+      <div className="fot-overlay">
       <div className="footer-logo">
         {/* Logo */}
         <div className="logo-container">
@@ -24,7 +25,7 @@ const Footer = () => {
   <a href="https://www.youtube.com" target="_blank" rel="noopener noreferrer" className="social-icon"><FaYoutube /></a>
   <a href="https://twitter.com" target="_blank" rel="noopener noreferrer" className="social-icon"><FaXTwitter /></a>
   <a href="https://www.linkedin.com" target="_blank" rel="noopener noreferrer" className="social-icon"><FaLinkedinIn /></a>
-</div>
+      </div>
 
       <div className="footer-container">
         {/* Keep this section commented as requested */}
@@ -33,10 +34,12 @@ const Footer = () => {
         <div className="footer-column">
           {/* <h3 className="footer-heading">Learn</h3> */}
           <ul className="footer-list">
-            <li><Link to="/our-story">Our Story</Link></li>
-            <li><Link to="/press">Press</Link></li>
-            <li><Link to="/records">RANAVAT Records</Link></li>
-            <li><Link to="/store-locator">Store Locator</Link></li>
+            <li><Link to="/blogs">Blogs</Link></li>
+            <li><Link to="/faqs">FAQs</Link></li>
+            <li><Link to="/contact">Contact Us</Link></li>            
+            {/* <li><Link to="/press">Press</Link></li> */}
+            {/* <li><Link to="/records">RANAVAT Records</Link></li> */}
+            {/* <li><Link to="/store-locator">Store Locator</Link></li> */}
           </ul>
         </div>
 
@@ -46,15 +49,15 @@ const Footer = () => {
             <li><Link to="/account">My Account</Link></li>
             <li><Link to="/order-details">Order Details</Link></li>
             <li><Link to="/track-order">Track Your Order</Link></li>
-            <li><Link to="/subscription">Subscription</Link></li>
-            <li><Link to="/royal-rewards">Royal Rewards</Link></li>
+            {/* <li><Link to="/subscription">Subscription</Link></li> */}
+            {/* <li><Link to="/royal-rewards">Royal Rewards</Link></li> */}
             <li><Link to="/concierge">Beauty Concierge</Link></li>
             <li><Link to="/refer">Refer a Friend</Link></li>
-            <li><Link to="/faqs">FAQs</Link></li>
-            <li><Link to="/contact">Contact Us</Link></li>
-            <li><Link to="/accessibility">Accessibility</Link></li>
+
+            {/* <li><Link to="/accessibility">Accessibility</Link></li> */}
           </ul>
         </div>
+      </div>
       </div>
     </footer>
   );

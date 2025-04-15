@@ -142,6 +142,7 @@
 
 // export default Account;
 // Account.js
+// Account.js
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { database, storage } from "../firebase";
@@ -171,32 +172,62 @@ function Account() {
 
   useEffect(() => {
     const storedUser = JSON.parse(localStorage.getItem("user"));
-    if (!storedUser || !storedUser.phone) {
+    if (!storedUser || (!storedUser.phone && !storedUser.email)) {
       navigate("/login");
       return;
     }
 
-    const userRef = dbRef(database, `users/${storedUser.phone}`);
-    get(userRef)
-      .then((snapshot) => {
-        if (snapshot.exists()) {
-          const data = snapshot.val();
+    const fetchUserData = async () => {
+      try {
+        // Try to fetch user by phone first
+        if (storedUser.phone) {
+          const userRef = dbRef(database, `users/${storedUser.phone}`);
+          const snapshot = await get(userRef);
 
-          const completeUserData = {
-            firstName: data.firstName || "",
-            lastName: data.lastName || "",
-            phone: data.phone || storedUser.phone,
-            email: data.email || storedUser.email || "",
-            photo: data.photo || "",
-            password: data.password || ""
-          };
-
-          setUserData(completeUserData);
-        } else {
-          console.warn("User not found in DB.");
+          if (snapshot.exists()) {
+            const data = snapshot.val();
+            setUserData({
+              firstName: data.firstName || "",
+              lastName: data.lastName || "",
+              phone: data.phone || storedUser.phone,
+              email: data.email || storedUser.email || "",
+              photo: data.photo || "",
+              password: data.password || ""
+            });
+            return;
+          }
         }
-      })
-      .catch((err) => console.error("Fetch error:", err));
+
+        // Fallback: Try to find user by email
+        const allUsersRef = dbRef(database, "users");
+        const snapshot = await get(allUsersRef);
+        if (snapshot.exists()) {
+          const allUsers = snapshot.val();
+          const foundUser = Object.values(allUsers).find(
+            (user) =>
+              user.email?.toLowerCase() === storedUser.email?.toLowerCase()
+          );
+
+          if (foundUser) {
+            setUserData({
+              firstName: foundUser.firstName || "",
+              lastName: foundUser.lastName || "",
+              phone: foundUser.phone || "",
+              email: foundUser.email || storedUser.email || "",
+              photo: foundUser.photo || "",
+              password: foundUser.password || ""
+            });
+            return;
+          }
+        }
+
+        console.warn("User not found in DB.");
+      } catch (err) {
+        console.error("Fetch error:", err);
+      }
+    };
+
+    fetchUserData();
   }, [navigate]);
 
   const handleChange = (e) => {
@@ -208,28 +239,40 @@ function Account() {
 
   const handleSave = async () => {
     const storedUser = JSON.parse(localStorage.getItem("user"));
-    if (!storedUser?.phone) return;
+    if (!storedUser?.phone && !storedUser?.email) return;
 
-    const updates = { ...userData };
+    let updates = { ...userData };
 
+    // Preserve the existing password if not being updated here
+    if (!updates.password) {
+      const userRef = dbRef(database, `users/${storedUser.phone}`);
+      const snapshot = await get(userRef);
+      updates.password = snapshot.val()?.password || "";
+    }
+
+    // Handle photo upload
     if (photoFile) {
-      const photoRef = storageRef(storage, `profile_photos/${storedUser.phone}`);
+      const photoRef = storageRef(storage, `profile_photos/${storedUser.phone || storedUser.email}`);
       await uploadBytes(photoRef, photoFile);
       const downloadURL = await getDownloadURL(photoRef);
       updates.photo = downloadURL;
     }
 
-    await set(dbRef(database, `users/${storedUser.phone}`), updates);
+    const userKey = storedUser.phone || updates.phone;
+    await set(dbRef(database, `users/${userKey}`), updates);
     localStorage.setItem("user", JSON.stringify(updates));
     alert("✅ Profile updated!");
   };
 
   const handlePasswordChange = async () => {
     const storedUser = JSON.parse(localStorage.getItem("user"));
-    if (!storedUser?.phone || !newPassword) return;
+    if (!storedUser?.phone && !storedUser?.email) return;
+    if (!newPassword) return;
 
     const updatedUser = { ...userData, password: newPassword };
-    await set(dbRef(database, `users/${storedUser.phone}`), updatedUser);
+    const userKey = storedUser.phone || updatedUser.phone;
+
+    await set(dbRef(database, `users/${userKey}`), updatedUser);
     localStorage.setItem("user", JSON.stringify(updatedUser));
     setNewPassword("");
     alert("🔐 Password updated!");
@@ -312,3 +355,4 @@ function Account() {
 }
 
 export default Account;
+

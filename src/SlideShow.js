@@ -6,12 +6,14 @@ import "swiper/css/navigation";
 
 // Sample images (replace these with your own paths)
 import img1 from "./assets/Website_03.jpg";
-import img2 from "./assets/banner.png";
+// import img2 from "./assets/banner.png";
+import img2 from "./assets/1.5x/Asset 2hdpi.png";
+
 // import img3 from "./assets/insta3.jpg";
 // import img4 from "./assets/insta4.jpg";
 // import img5 from "./assets/insta5.jpg";
 // img3, img4, img5
-const images = [img1, img2, ];
+const images = [img1, img2 ];
 
 function Slide() {
   const swiperRef = useRef(null);

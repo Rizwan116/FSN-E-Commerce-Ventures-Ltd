@@ -99,12 +99,12 @@ function Navbar() {
             <NavLink to="/account" className={({ isActive }) => (isActive ? "active" : "")}>
               My Account
             </NavLink>
-            <span
+            <NavLink
               onClick={handleLogout}
               style={{ marginLeft: '10px', cursor: 'pointer', color: 'red' }}
             >
               Logout
-            </span>
+            </NavLink>
           </>
         )}
 
