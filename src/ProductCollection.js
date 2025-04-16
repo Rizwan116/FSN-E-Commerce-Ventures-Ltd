@@ -1,6 +1,5 @@
-// ProductCollection.js
-import React, { useState, useEffect, useRef } from "react";
-import { database, ref, get, child, push, set } from "./firebase";
+import React, { useState, useEffect, useRef, useCallback } from "react";
+import { database, ref, get, child, set } from "./firebase";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation } from "swiper/modules";
 import "swiper/css";
@@ -15,118 +14,161 @@ import OurStory from './OurStory';
 
 function ProductCollection() {
   const dispatch = useDispatch();
-  const cartItems = useSelector((state) => state.cart.items || []);
   const location = useLocation();
+  const cartItems = useSelector((state) => state.cart.items || []);
 
   const [allProducts, setAllProducts] = useState([]);
   const [ratings, setRatings] = useState({});
+  const [isUpdatingStock, setIsUpdatingStock] = useState({});
   const swiperRef = useRef(null);
 
-  // Create a function to fetch products that we can call when needed
-  const fetchProducts = async () => {
+  // Create a memoized function to fetch products
+  const fetchProducts = useCallback(async () => {
     try {
       const dbRef = ref(database);
+      const products = {};
 
       // Fetch from "products"
       const newSnap = await get(child(dbRef, "products"));
-      let newProducts = [];
       if (newSnap.exists()) {
         const data = newSnap.val();
-        newProducts = Object.keys(data).map((key) => ({
-          id: key,
-          ...data[key],
-        }));
+        Object.keys(data).forEach((key) => {
+          products[key] = { ...data[key], id: key };
+        });
       }
 
       // Fetch from "product"
       const oldSnap = await get(child(dbRef, "product"));
-      let oldProducts = [];
       if (oldSnap.exists()) {
         const data = oldSnap.val();
-        oldProducts = Object.keys(data).map((key) => ({
-          id: key,
-          ...data[key],
-        }));
+        Object.keys(data).forEach((key) => {
+          products[key] = { ...data[key], id: key };
+        });
       }
 
-      setAllProducts([...newProducts, ...oldProducts]);
+      setAllProducts(Object.values(products));
     } catch (error) {
       console.error("Error fetching products:", error);
     }
-  };
+  }, []);
 
   useEffect(() => {
     // Fetch products when component mounts or when returning to this page
     fetchProducts();
     
     // Set up an interval to refresh product data periodically (every 10 seconds)
-    // This is a workaround for not having onValue
     const intervalId = setInterval(fetchProducts, 10000);
     
     // Clear interval on component unmount
     return () => clearInterval(intervalId);
-  }, [location.key]); // Re-fetch when navigating back to this page
+  }, [fetchProducts, location.key]);
 
-  const slidePrev = () => swiperRef.current?.slidePrev();
-  const slideNext = () => swiperRef.current?.slideNext();
-
-  const handleRating = (productId, value) => {
+  const handleRating = useCallback((productId, value) => {
     setRatings((prev) => ({
       ...prev,
       [productId]: value,
     }));
-  };
+  }, []);
 
-  const handleAddToCart = (product) => {
-    const itemInCart = cartItems.find((item) => item.id === product.id);
-    const quantityInCart = itemInCart ? itemInCart.quantity : 0;
-    
-    // Check if product has stock property and it's a number
+  // Helper function to get quantity in cart
+  const getQuantityInCart = useCallback((productId) => {
+    return cartItems.find((item) => item.id === productId)?.quantity || 0;
+  }, [cartItems]);
+
+  const handleAddToCart = useCallback(async (product) => {
+    const quantityInCart = getQuantityInCart(product.id);
     const stock = typeof product.stock === 'number' ? product.stock : 0;
     
     if (stock <= 0) {
       alert("This product is out of stock.");
       return;
     }
-  
-    if (quantityInCart < stock) {
+
+    if (quantityInCart >= stock) {
+      alert("You've reached the maximum stock limit for this product.");
+      return;
+    }
+
+    setIsUpdatingStock((prev) => ({ ...prev, [product.id]: true }));
+
+    try {
+      // First update the stock in Firebase
+      const newStock = stock - 1;
+      await set(ref(database, `products/${product.id}/stock`), newStock);
+      
+      // Then dispatch to Redux
       dispatch(
         addToCart({
           id: product.id,
           title: product.name,
           price: product.price,
           image: product.image,
-          stock: stock,
+          stock: newStock,
         })
       );
-    } else {
-      alert("You've reached the maximum stock limit for this product.");
+      
+      // Refresh products to get the latest stock
+      await fetchProducts();
+    } catch (error) {
+      console.error("Error updating stock:", error);
+      alert("Failed to update product stock. Please try again.");
+    } finally {
+      setIsUpdatingStock((prev) => ({ ...prev, [product.id]: false }));
     }
-  };
+  }, [dispatch, fetchProducts, getQuantityInCart]);
 
-  // Force refresh products when returning from checkout
-  useEffect(() => {
-    // Add event listener for page visibility change
-    const handleVisibilityChange = () => {
-      if (document.visibilityState === 'visible') {
-        fetchProducts();
-      }
-    };
-    
-    document.addEventListener('visibilitychange', handleVisibilityChange);
-    
-    return () => {
-      document.removeEventListener('visibilitychange', handleVisibilityChange);
-    };
-  }, []);
+  // Memoized product card renderer
+  const renderProductCard = useCallback((product) => {
+    const quantityInCart = getQuantityInCart(product.id);
+    const stock = typeof product.stock === 'number' ? product.stock : 0;
+    const isOutOfStock = stock <= 0;
+    const isStockExceeded = quantityInCart >= stock;
+    const isLoading = isUpdatingStock[product.id];
+
+    return (
+      <SwiperSlide key={product.id}>
+        <div className="product-card">
+          <img src={product.image} alt={product.name} />
+          <h1>{product.name}</h1>
+
+          <div className="star-rating">
+            {[1, 2, 3, 4, 5].map((star) => (
+              <span
+                key={star}
+                className={`star ${ratings[product.id] >= star ? "filled" : ""}`}
+                onClick={() => handleRating(product.id, star)}
+              >
+                ★
+              </span>
+            ))}
+          </div>
+
+          <h3>${product.price}</h3>
+          {/* {stock > 0 && (
+            <p className="stock-status">
+              {stock - quantityInCart} available
+            </p>
+          )} */}
+          <button
+            className={`view-product-btn ${isOutOfStock || isStockExceeded ? "sold-out" : ""}`}
+            onClick={() => handleAddToCart(product)}
+            disabled={isOutOfStock || isStockExceeded || isLoading}
+          >
+            {isLoading ? "UPDATING..." : 
+             isOutOfStock ? "SOLD OUT" : 
+             isStockExceeded ? "MAX REACHED" : "ADD TO CART"}
+          </button>
+        </div>
+      </SwiperSlide>
+    );
+  }, [getQuantityInCart, handleAddToCart, handleRating, isUpdatingStock, ratings]);
 
   return (
     <>
-    
       <div className="product-collection-section">
         <h2>BESTSELLER</h2>
         <div className="product-collection-main">
-          <button className="slider-arrow-left" onClick={slidePrev}>←</button>
+          <button className="slider-arrow-left" onClick={() => swiperRef.current?.slidePrev()}>←</button>
 
           <Swiper
             onSwiper={(swiper) => (swiperRef.current = swiper)}
@@ -136,47 +178,10 @@ function ProductCollection() {
             modules={[Navigation]}
             grabCursor={true}
           >
-            {allProducts.map((product) => {
-              const itemInCart = cartItems.find((item) => item.id === product.id);
-              const quantityInCart = itemInCart ? itemInCart.quantity : 0;
-              const stock = typeof product.stock === 'number' ? product.stock : 0;
-              const isOutOfStock = stock <= 0;
-              const isStockExceeded = quantityInCart >= stock;
-
-              return (
-                <SwiperSlide key={product.id}>
-                  <div className="product-card">
-                    <img src={product.image} alt={product.name} />
-                    <h1>{product.name}</h1>
-
-                    <div className="star-rating">
-                      {[1, 2, 3, 4, 5].map((star) => (
-                        <span
-                          key={star}
-                          className={`star ${ratings[product.id] >= star ? "filled" : ""}`}
-                          onClick={() => handleRating(product.id, star)}
-                        >
-                          ★
-                        </span>
-                      ))}
-                    </div>
-
-                    <h3>${product.price}</h3>
-                    {stock > 0 && <p className="stock-status" style={{display:`none`}}>{stock} in stock</p>}
-                    <button
-                      className={`view-product-btn ${isOutOfStock || isStockExceeded ? "sold-out" : ""}`}
-                      onClick={() => handleAddToCart(product)}
-                      disabled={isOutOfStock || isStockExceeded}
-                    >
-                      {isOutOfStock || isStockExceeded ? "SOLD OUT" : "ADD TO CART"}
-                    </button>
-                  </div>
-                </SwiperSlide>
-              );
-            })}
+            {allProducts.map((product) => renderProductCard(product))}
           </Swiper>
 
-          <button className="slider-arrow-right" onClick={slideNext}>→</button>
+          <button className="slider-arrow-right" onClick={() => swiperRef.current?.slideNext()}>→</button>
         </div>
       </div>
 
@@ -192,12 +197,12 @@ function ProductCollection() {
         }}
       />
 
-    <Banner
+      <Banner
         image={productBanner2}
         text="Blissful Aromas"
         ctaText="SHOP NOW"
         onCtaClick={() => {
-          const section = document.querySelector(".product-collection-section2");
+          const section = document.querySelector(".product-collection-section");
           if (section) section.scrollIntoView({ behavior: "smooth" });
         }}
       />
@@ -205,4 +210,4 @@ function ProductCollection() {
   );
 }
 
-export default ProductCollection;
+export default React.memo(ProductCollection);

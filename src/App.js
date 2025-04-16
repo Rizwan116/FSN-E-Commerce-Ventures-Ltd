@@ -8,6 +8,7 @@ import "react-toastify/dist/ReactToastify.css";
 // ✅ Import components
 import CartPage from "./CartPage";
 import Billing from "./Billing";
+import OrderSuccess from './OrderSuccess';
 import { AuthProvider } from "./context/AuthContext";
 import HeaderBar from "./Header";
 import Footer from "./Footer";
@@ -54,6 +55,7 @@ const AppRoutes = () => {
           <Route path="/" element={<Home />} />
           <Route path="/shop" element={<Shop />} />
           <Route path="/aboutUs" element={<AboutUs />} />
+          <Route path="/order-success" element={<OrderSuccess />} />
           <Route path="/OurStory" element={<OurStory />} />
           <Route path="/blog" element={<Blog />} />
           <Route path="/account" element={<Account />} />

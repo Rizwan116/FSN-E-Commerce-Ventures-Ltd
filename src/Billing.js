@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { database } from './firebase';
-import { ref as dbRef, push, set } from 'firebase/database';
+import { ref, push, set, update, get } from 'firebase/database'; // Added 'get' here
 import { useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { clearCart } from './redux/cartSlice';
@@ -18,6 +18,7 @@ const Billing = () => {
   });
 
   const [errors, setErrors] = useState({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const cart = useSelector((state) => state.cart);
@@ -28,7 +29,6 @@ const Billing = () => {
 
   const validateForm = () => {
     const newErrors = {};
-
     const nameRegex = /^[a-zA-Z\s]{2,}$/;
     const phoneRegex = /^[6-9]\d{9}$/;
     const emailRegex = /^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/;
@@ -36,10 +36,10 @@ const Billing = () => {
     const pincodeRegex = /^\d{5,6}$/;
 
     if (!nameRegex.test(form.firstName)) {
-      newErrors.firstName = "Enter a valid first name (only letters, min 2 characters)";
+      newErrors.firstName = "Enter a valid first name (min 2 letters)";
     }
     if (!nameRegex.test(form.lastName)) {
-      newErrors.lastName = "Enter a valid last name (only letters, min 2 characters)";
+      newErrors.lastName = "Enter a valid last name (min 2 letters)";
     }
     if (!phoneRegex.test(form.phone)) {
       newErrors.phone = "Enter a valid 10-digit phone number";
@@ -58,47 +58,78 @@ const Billing = () => {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = async () => {
-    if (!validateForm()) return;
-
+  const updateProductStock = async (productId, quantity) => {
+    const productRef = ref(database, `products/${productId}`);
     try {
-      const cartCopy = JSON.parse(JSON.stringify(cart)); // deep clone
+      // Get current stock
+      const snapshot = await get(productRef);
+      if (snapshot.exists()) {
+        const productData = snapshot.val();
+        const currentStock = productData.stock || 0;
+        const newStock = Math.max(currentStock - quantity, 0);
+        
+        // Update stock in Firebase
+        await update(productRef, { stock: newStock });
+        return true;
+      }
+      return false;
+    } catch (error) {
+      console.error("Error updating product stock:", error);
+      return false;
+    }
+  };
 
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!validateForm() || isSubmitting) return;
+
+    setIsSubmitting(true);
+    
+    try {
+      // Create order data
       const orderData = {
         ...form,
-        cart: cartCopy,
+        cart: JSON.parse(JSON.stringify(cart)),
+        totalAmount: cart.items.reduce((sum, item) => sum + (item.price * item.quantity), 0),
         timestamp: new Date().toISOString(),
+        status: 'processing'
       };
 
-      const orderRef = dbRef(database, 'orders');
+      // Save order to Firebase
+      const orderRef = ref(database, 'orders');
       const newOrderRef = push(orderRef);
       await set(newOrderRef, orderData);
+      const orderId = newOrderRef.key;
 
-      // 🔥 Update stock for each item in cart
+      // Update stock for each product in the cart
+      const stockUpdates = [];
       for (const item of cart.items) {
-        const response = await fetch(`https://YOUR_FIREBASE_PROJECT.firebaseio.com/products/${item.id}.json`);
-        const productData = await response.json();
-
-        if (productData && productData.stock != null) {
-          const updatedStock = Math.max(productData.stock - item.quantity, 0);
-
-          await fetch(`https://YOUR_FIREBASE_PROJECT.firebaseio.com/products/${item.id}.json`, {
-            method: 'PATCH',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ stock: updatedStock }),
-          });
-        }
+        stockUpdates.push(updateProductStock(item.id, item.quantity));
       }
 
+      // Wait for all stock updates to complete
+      const stockUpdateResults = await Promise.all(stockUpdates);
+      const allUpdatesSuccessful = stockUpdateResults.every(result => result);
+
+      if (!allUpdatesSuccessful) {
+        throw new Error("Some stock updates failed");
+      }
+
+      // Clear cart and redirect on success
       dispatch(clearCart());
-      alert('✅ Order placed successfully!');
-      navigate('/order-details', { state: { orderId: newOrderRef.key } });
+      navigate('/order-success', { 
+        state: { 
+          orderId,
+          customerName: `${form.firstName} ${form.lastName}`,
+          totalAmount: orderData.totalAmount
+        } 
+      });
 
     } catch (error) {
-      console.error('❌ Failed to place order:', error);
-      alert('❌ Something went wrong while placing the order!');
+      console.error('Order submission failed:', error);
+      alert('❌ Failed to place order. Please try again.');
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -106,34 +137,56 @@ const Billing = () => {
     <div className="billing-form">
       <h2>Fill your Billing Address</h2>
 
-      <input name="firstName" placeholder="First Name" onChange={handleChange} value={form.firstName} />
-      {errors.firstName && <p className="error-msg">{errors.firstName}</p>}
+      <div className="form-group">
+        <input name="firstName" placeholder="First Name" onChange={handleChange} value={form.firstName} />
+        {errors.firstName && <p className="error-msg">{errors.firstName}</p>}
+      </div>
 
-      <input name="lastName" placeholder="Last Name" onChange={handleChange} value={form.lastName} />
-      {errors.lastName && <p className="error-msg">{errors.lastName}</p>}
+      <div className="form-group">
+        <input name="lastName" placeholder="Last Name" onChange={handleChange} value={form.lastName} />
+        {errors.lastName && <p className="error-msg">{errors.lastName}</p>}
+      </div>
 
-      <input name="phone" placeholder="Phone Number" onChange={handleChange} value={form.phone} />
-      {errors.phone && <p className="error-msg">{errors.phone}</p>}
+      <div className="form-group">
+        <input name="phone" placeholder="Phone Number" onChange={handleChange} value={form.phone} />
+        {errors.phone && <p className="error-msg">{errors.phone}</p>}
+      </div>
 
-      <input name="email" placeholder="Email Address" onChange={handleChange} value={form.email} />
-      {errors.email && <p className="error-msg">{errors.email}</p>}
+      <div className="form-group">
+        <input name="email" placeholder="Email Address" onChange={handleChange} value={form.email} />
+        {errors.email && <p className="error-msg">{errors.email}</p>}
+      </div>
 
-      <input name="address" placeholder="Address" onChange={handleChange} value={form.address} />
-      {errors.address && <p className="error-msg">{errors.address}</p>}
+      <div className="form-group">
+        <input name="address" placeholder="Address" onChange={handleChange} value={form.address} />
+        {errors.address && <p className="error-msg">{errors.address}</p>}
+      </div>
 
-      <input name="pincode" placeholder="Pincode" onChange={handleChange} value={form.pincode} />
-      {errors.pincode && <p className="error-msg">{errors.pincode}</p>}
+      <div className="form-group">
+        <input name="pincode" placeholder="Pincode" onChange={handleChange} value={form.pincode} />
+        {errors.pincode && <p className="error-msg">{errors.pincode}</p>}
+      </div>
 
-      <input name="nearbyLocation" placeholder="Nearby Location" onChange={handleChange} value={form.nearbyLocation} />
+      <div className="form-group">
+        <input name="nearbyLocation" placeholder="Nearby Location" onChange={handleChange} value={form.nearbyLocation} />
+      </div>
 
-      <h3>Mode of Payment</h3>
-      <select name="paymentMode" onChange={handleChange} value={form.paymentMode}>
-        <option value="UPI">UPI</option>
-        <option value="COD">Cash On Delivery</option>
-        <option value="Voucher">Voucher Code</option>
-      </select>
+      <div className="form-group">
+        <h3>Mode of Payment</h3>
+        <select name="paymentMode" onChange={handleChange} value={form.paymentMode}>
+          <option value="UPI">UPI</option>
+          <option value="COD">Cash On Delivery</option>
+          <option value="Voucher">Voucher Code</option>
+        </select>
+      </div>
 
-      <button onClick={handleSubmit}>Proceed to Buy</button>
+      <button 
+        onClick={handleSubmit} 
+        disabled={isSubmitting}
+        className={isSubmitting ? 'submitting' : ''}
+      >
+        {isSubmitting ? 'Processing...' : 'Proceed to Buy'}
+      </button>
     </div>
   );
 };
