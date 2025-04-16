@@ -1,6 +1,7 @@
 import React from "react";
 import productImage from "./assets/about-us.png";
 import productImage2 from "./assets/about-us2.png";
+import { transform } from "framer-motion";
 
 
 const AboutUsCard = ({ image, title, buttonText }) => {
@@ -62,8 +63,8 @@ const About = () => {
 
   return (
     <section className="about-us-section">
-      <h2 className="about-us-title">About Us</h2>
-      <span>Lorem Ipsum dolor sit amet, consectetuer adipicing</span>
+      <h3 style={{textTransform: "capitalize"}} className="about-us-title">Handmade Cleansing Bar</h3>
+      <span style={{textTransform: "uppercase"}}>Lorem Ipsum dolor sit amet, consectetuer adipicing Lorem Ipsum dolor sit amet, consectetuer adipicing</span>
       <br/>
       <br/>
       <a className="about-us-title-button" href="">SHOP NOW</a>

@@ -8,6 +8,8 @@ import PageTransition from "./PageTransition";
 
 // ✅ Import your actual homepage banner image
 import banner from "./assets/Asset.png";
+import Announcement from './Announcement';
+
 
 function Home() {
   return (
@@ -15,11 +17,15 @@ function Home() {
     <div className="App-background">
       <header className="App-header">
 
+      <Announcement />
+
         {/* ✅ Fixed: Properly passing the image to the Banner component */}
-        <Banner image={banner}  style={{ margin: '55px 0px 0px 0px' }}  />
+        <Banner image={banner}  style={{ margin: '0px 0px 0px 0px' }}  />
 
         <About />
+        
         <ProductCollection />
+        
         <SlideShow />
         {/* <Footer /> */}
         

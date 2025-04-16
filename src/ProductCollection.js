@@ -7,9 +7,11 @@ import "swiper/css";
 import "swiper/css/navigation";
 import Banner from "./Banner";
 import productBanner from "./assets/Asset1.png";
+import productBanner2 from "./assets/Asset11.png";
 import { useDispatch, useSelector } from "react-redux";
 import { addToCart } from "./redux/cartSlice";
 import { useLocation } from "react-router-dom";
+import OurStory from './OurStory';
 
 function ProductCollection() {
   const dispatch = useDispatch();
@@ -120,6 +122,7 @@ function ProductCollection() {
 
   return (
     <>
+    
       <div className="product-collection-section">
         <h2>BESTSELLER</h2>
         <div className="product-collection-main">
@@ -177,12 +180,24 @@ function ProductCollection() {
         </div>
       </div>
 
+      <OurStory />
+
       <Banner
         image={productBanner}
         text="Cleansing Bar"
         ctaText="SHOP NOW"
         onCtaClick={() => {
           const section = document.querySelector(".product-collection-section");
+          if (section) section.scrollIntoView({ behavior: "smooth" });
+        }}
+      />
+
+    <Banner
+        image={productBanner2}
+        text="Blissful Aromas"
+        ctaText="SHOP NOW"
+        onCtaClick={() => {
+          const section = document.querySelector(".product-collection-section2");
           if (section) section.scrollIntoView({ behavior: "smooth" });
         }}
       />

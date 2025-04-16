@@ -14,7 +14,9 @@ import Footer from "./Footer";
 import ScrollToTop from "./ScrollToTop";
 
 import Home from "./Home";
+import Announcement from "./Announcement";
 import AboutUs from "./AboutUs";
+import OurStory from "./OurStory";
 import Shop from "./Shop";
 import Blog from "./Blog";
 import Account from "./pages/Account";
@@ -44,6 +46,7 @@ const AppRoutes = () => {
   return (
     <AnimatePresence mode="wait">
       <ScrollToTop />
+      <Announcement />
       <HeaderBar />
       <ToastContainer />
       <div className="content">
@@ -51,6 +54,7 @@ const AppRoutes = () => {
           <Route path="/" element={<Home />} />
           <Route path="/shop" element={<Shop />} />
           <Route path="/aboutUs" element={<AboutUs />} />
+          <Route path="/OurStory" element={<OurStory />} />
           <Route path="/blog" element={<Blog />} />
           <Route path="/account" element={<Account />} />
           <Route path="/track-order" element={<TrackOrder />} />
