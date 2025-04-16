@@ -175,13 +175,13 @@ function AdminPanel() {
           className={activeTab === "products" ? "active" : ""} 
           onClick={() => setActiveTab("products")}
         >
-          Manage Products
+          <h6>Manage Products</h6>
         </button>
         <button 
           className={activeTab === "orders" ? "active" : ""} 
           onClick={() => setActiveTab("orders")}
         >
-          View Orders
+          <h6>View Orders</h6>
         </button>
       </div>
       

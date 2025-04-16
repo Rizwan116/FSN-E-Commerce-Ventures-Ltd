@@ -1,5 +1,7 @@
 function Blogs() {
-    return <h1>My Blogs Page</h1>;
+    return <div className="e-container">
+      <h1>My Blogs Page</h1>
+    </div>;
   }
   
   export default Blogs;

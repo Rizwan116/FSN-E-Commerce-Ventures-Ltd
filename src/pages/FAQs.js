@@ -1,5 +1,5 @@
 function FAQs() {
-    return <h1>My FAQs Page</h1>;
+    return <div className="e-container"><h1>My FAQs Page</h1></div>;
   }
   
   export default FAQs;

@@ -76,7 +76,7 @@ function Navbar() {
         <NavLink to="/aboutUs" className={({ isActive }) => (isActive ? "active" : "")}>
           About Us
         </NavLink>
-        <NavLink to="/blog" className={({ isActive }) => (isActive ? "active" : "")}>
+        <NavLink to="/blogs" className={({ isActive }) => (isActive ? "active" : "")}>
           Blog
         </NavLink>
 

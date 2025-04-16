@@ -80,12 +80,12 @@ const Login = () => {
         value={form.password}
       />
       <button onClick={validate}>Login</button>
-      <p
+      <h6 className='for-pass'
         onClick={() => navigate('/forget-password')}
-        style={{ color: 'blue', cursor: 'pointer' }}
+        style={{ cursor: 'pointer' }}
       >
         Forgot Password?
-      </p>
+      </h6>
     </div>
   );
 };

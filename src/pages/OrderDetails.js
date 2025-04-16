@@ -122,7 +122,7 @@ const OrderDetails = () => {
   const totalPages = Math.ceil(allOrders.length / ordersPerPage);
 
   return (
-    <div className="container py-4">
+    <div className="order-details-container py-4">
       <div className="mb-4">
         <h2 className="text-success">🎉 Order Completed Successfully!</h2>
         {renderStatusBadge(status)}

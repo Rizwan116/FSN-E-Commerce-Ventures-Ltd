@@ -19,7 +19,7 @@ import Announcement from "./Announcement";
 import AboutUs from "./AboutUs";
 import OurStory from "./OurStory";
 import Shop from "./Shop";
-import Blog from "./Blog";
+// import Blog from "./Blog";
 import Account from "./pages/Account";
 import TrackOrder from "./pages/TrackOrder";
 import Subscription from "./pages/Subscription";
@@ -57,7 +57,7 @@ const AppRoutes = () => {
           <Route path="/aboutUs" element={<AboutUs />} />
           <Route path="/order-success" element={<OrderSuccess />} />
           <Route path="/OurStory" element={<OurStory />} />
-          <Route path="/blog" element={<Blog />} />
+          {/* <Route path="/blog" element={<Blog />} /> */}
           <Route path="/account" element={<Account />} />
           <Route path="/track-order" element={<TrackOrder />} />
           <Route path="/subscription" element={<Subscription />} />

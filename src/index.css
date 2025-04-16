@@ -395,105 +395,144 @@ section {
   }
   
   /* my account  */
-  .account-container {
-    max-width: 600px;
-    padding: 4rem 1rem 4rem 1rem;
-        background: #f8f9fa;
-    border-radius: 10px;
-    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
-    font-family: "Playfair Display", serif;
-  }
-  
-  .account-container h2 {
-    text-align: center;
-    margin-bottom: 25px;
-    color: #333;
-  }
-  
-  .account-form {
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-  }
-  
-  .form-group {
-    display: flex;
-    flex-direction: column;
-  }
-  
-  .form-group label {
-    margin-bottom: 6px;
-    font-weight: 500;
-    color: #444;
-  }
-  
-  .form-group input {
-    padding: 10px;
-    font-size: 15px;
-    border: 1px solid #ccc;
-    border-radius: 6px;
-  }
-  
-  .account-form button {
-    padding: 12px;
-    background-color: #007bff;
-    color: white;
-    font-weight: bold;
-    border: none;
-    border-radius: 6px;
-    cursor: pointer;
-    transition: background 0.3s;
-  }
-  
-  .account-form button:hover {
-    background-color: #0056b3;
-  }
 
   .account-page {
-    max-width: 500px;
-    margin: auto;
+    max-width: 600px;
+    margin: 2rem auto;
     padding: 2rem;
-    border-radius: 10px;
-    background: #fdfdfd;
-    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    background-color: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   }
   
   .account-page h2 {
     text-align: center;
-    margin-bottom: 1.5rem;
+    color: #2c3e50;
+    margin-bottom: 1.8rem;
+    font-size: 1.8rem;
+    font-weight: 600;
   }
   
-  .form input {
-    display: block;
+  .account-page .form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.2rem;
+  }
+  
+  .account-page input {
     width: 100%;
-    margin-bottom: 1rem;
-    padding: 10px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
+    padding: 12px 16px;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    box-sizing: border-box;
   }
   
-  button {
-    margin-bottom: 20px;
-    padding: 10px 15px;
-    background-color: #007bff;
+  .account-page input:focus {
+    outline: none;
+    border-color: #4a90e2;
+    box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.2);
+  }
+  
+  .account-page input[readonly] {
+    background-color: #f5f5f5;
+    color: #666;
+  }
+  
+  .account-page .photo-section {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    margin: 1rem 0;
+  }
+  
+  .account-page .photo-section label {
+    font-weight: 500;
+    color: #2c3e50;
+  }
+  
+  .account-page .profile-pic {
+    width: 100px;
+    height: 100px;
+    object-fit: cover;
+    border-radius: 50%;
+    border: 3px solid #e0e0e0;
+    align-self: center;
+  }
+  
+  .account-page .password-change {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    margin-top: 1.5rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid #eee;
+  }
+  
+  .account-page button {
+    padding: 14px;
+    background-color: #212b23;
     color: white;
     border: none;
-    margin-top: 10px;
-    border-radius: 4px;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 500;
     cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
   }
   
-  button:hover {
-    background-color: #0056b3;
+  .account-page button:hover {
+    background-color: #3a7bc8;
+    transform: translateY(-1px);
   }
   
-  .profile-pic {
-    width: 80px;
-    height: 80px;
-    border-radius: 50%;
-    margin-top: 10px;
-    object-fit: cover;
+  .account-page button:active {
+    transform: translateY(0);
   }
+  
+  .account-page .logout-btn {
+    background-color: #e74c3c;
+    margin-top: 2rem;
+  }
+  
+  .account-page .logout-btn:hover {
+    background-color: #c0392b;
+  }
+  
+  /* Responsive adjustments */
+  @media (max-width: 768px) {
+    .account-page {
+      padding: 1.5rem;
+      margin: 1rem;
+    }
+    
+    .account-page h2 {
+      font-size: 1.5rem;
+    }
+  }
+  
+  @media (max-width: 480px) {
+    .account-page {
+      padding: 1.2rem;
+      margin-top: 8rem;
+    }
+    
+    .account-page input {
+      padding: 10px 14px;
+    }
+    
+    .account-page button {
+      padding: 12px;
+    }
+  }
+
+
   
 }
 @media (max-width: 768px) {
@@ -1532,86 +1571,140 @@ h2 {
 
 /* Billing.css */
 
-.billing-container {
-  max-width: 600px;
-  margin: 0 auto;
-  padding: 1rem;
-  font-family: "Playfair Display", serif;
-}
-
-.billing-title {
-  font-size: 1.5rem;
-  font-weight: bold;
-  margin-bottom: 1.5rem;
-  text-align: center;
-}
-
 .billing-form {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
+  max-width: 600px;
+  margin: 2rem auto;
+  padding: 2rem;
+  background-color: #f9f9f9;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
-.billing-form label {
-  font-weight: 600;
-  margin-bottom: 0.25rem;
+.billing-form h2 {
+  text-align: center;
+  color: #2c3e50;
+  margin-bottom: 1.5rem;
+  font-size: 1.8rem;
 }
 
-.billing-form input,
-.billing-form select,
-.billing-form textarea {
+.billing-form h3 {
+  color: #2c3e50;
+  margin: 1.2rem 0 0.8rem;
+  font-size: 1.2rem;
+}
+
+.billing-form .form-group {
+  margin-bottom: 1.5rem;
+}
+
+.billing-form .form-group input,
+.billing-form .form-group select {
   width: 100%;
-  padding: 0.8rem;
-  border: 1px solid #ccc;
-  border-radius: 6px;
+  padding: 12px 15px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
   font-size: 1rem;
+  transition: all 0.3s ease;
+  box-sizing: border-box;
+}
+
+.billing-form .form-group input:focus,
+.billing-form .form-group select:focus {
+  outline: none;
+  border-color: #3498db;
+  box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+}
+
+.billing-form .form-group input::placeholder {
+  color: #95a5a6;
+}
+
+.billing-form .error-msg {
+  color: #e74c3c;
+  font-size: 0.85rem;
+  margin-top: 0.5rem;
+  padding-left: 5px;
 }
 
 .billing-form button {
-  background-color: #007bff;
+  width: 100%;
+  padding: 14px;
+  background-color: #3498db;
   color: white;
-  padding: 0.9rem;
   border: none;
-  border-radius: 6px;
+  border-radius: 8px;
   font-size: 1.1rem;
+  font-weight: 600;
   cursor: pointer;
-  transition: background-color 0.3s ease;
+  transition: all 0.3s ease;
+  margin-top: 1rem;
 }
 
 .billing-form button:hover {
-  background-color: #0056b3;
+  background-color: #2980b9;
+  transform: translateY(-2px);
 }
 
-/* Responsive styling for mobile */
+.billing-form button:active {
+  transform: translateY(0);
+}
+
+.billing-form button:disabled {
+  background-color: #95a5a6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.billing-form button.submitting {
+  position: relative;
+}
+
+.billing-form button.submitting::after {
+  content: "";
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  top: 50%;
+  left: 50%;
+  margin: -8px 0 0 -8px;
+  border: 3px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  border-top-color: white;
+  animation: spin 1s ease-in-out infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Responsive adjustments */
 @media (max-width: 768px) {
-  .billing-container {
-    padding: 1rem 1rem 2rem;
+  .billing-form {
+    padding: 1.5rem;
+    margin: 1rem;
   }
-
-  .billing-title {
-    font-size: 1.25rem;
-  }
-
-  .billing-form input,
-  .billing-form select,
-  .billing-form textarea {
-    font-size: 0.95rem;
-    padding: 0.75rem;
-  }
-
-  .billing-form button {
-    font-size: 1rem;
-    padding: 0.85rem;
-  }
-  .error-msg {
-    color: red;
-    font-size: 0.85rem;
-    margin: 4px 0 8px;
-  }
-
   
+  .billing-form h2 {
+    font-size: 1.5rem;
+  }
 }
 
+@media (max-width: 480px) {
+  .billing-form {
+    padding: 1rem;
+    margin-top: 8rem;
+  }
+  
+  .billing-form .form-group input,
+  .billing-form .form-group select {
+    padding: 10px 12px;
+  }
+  
+  .billing-form button {
+    padding: 12px;
+  }
+}
 /* OrderPages.css */
 
 /* Base Styles */
@@ -1692,6 +1785,274 @@ h2 {
   font-weight: 600;
   color: #1f2937;
 }
+
+
+/* OrderDetails.css - Modern Mobile-Friendly Design */
+
+/* Base Styles */
+.container.py-4 {
+  padding: 1rem;
+  max-width: 100%;
+  font-family: 'Inter', -apple-system, sans-serif;
+  color: #333;
+  background-color: #f8f9fa;
+  min-height: 100vh;
+}
+
+/* Header Section */
+.mb-4 {
+  margin-bottom: 1.5rem;
+  background: white;
+  padding: 1.5rem;
+  border-radius: 16px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.05);
+  text-align: center;
+}
+
+.mb-4 h2 {
+  font-size: 1.5rem;
+  margin-bottom: 0.8rem;
+  color: #2e7d32;
+  font-weight: 700;
+}
+
+/* Status Badge */
+.badge {
+  padding: 0.5rem 1rem;
+  border-radius: 24px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  display: inline-block;
+  margin-top: 0.5rem;
+}
+
+/* Order Summary Card */
+#order-summary {
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+  border-radius: 16px;
+  background: white;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+}
+
+#order-summary h4 {
+  font-size: 1.2rem;
+  margin: 1.5rem 0 1rem;
+  color: #1a237e;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+#order-summary h4:first-child {
+  margin-top: 0;
+}
+
+/* Customer Details */
+.detail-row {
+  margin-bottom: 1rem;
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.detail-row strong {
+  min-width: 120px;
+  color: #555;
+  font-weight: 500;
+}
+
+/* Product Items */
+.d-flex.gap-3 {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  padding: 1.5rem 0;
+  border-bottom: 1px solid #eee;
+}
+
+.d-flex.gap-3:last-child {
+  border-bottom: none;
+}
+
+.img-thumbnail {
+  width: 100%;
+  max-width: 120px;
+  height: auto;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.d-flex.gap-3 h5 {
+  font-size: 1.1rem;
+  margin-bottom: 0.5rem;
+  color: #333;
+}
+
+.d-flex.gap-3 h4 {
+  font-size: 1rem;
+  color: #666;
+}
+
+/* Total Amount */
+#order-summary h5:last-child {
+  font-size: 1.3rem;
+  color: #1a237e;
+  margin-top: 1.5rem;
+  padding-top: 1rem;
+  border-top: 2px dashed #ddd;
+}
+
+/* Action Buttons */
+.mb-4:has(.btn) {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.8rem;
+  background: transparent;
+  box-shadow: none;
+  padding: 0;
+}
+
+.btn {
+  flex: 1 1 45%;
+  min-width: 140px;
+  padding: 1rem;
+  border-radius: 12px;
+  font-size: 1rem;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
+
+.btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+}
+
+.btn-outline-primary {
+  background: #4f46e5;
+  color: white;
+  border: none;
+}
+
+.btn-outline-success {
+  background: #10b981;
+  color: white;
+  border: none;
+}
+
+.btn-outline-secondary {
+  background: #0ea5e9;
+  color: white;
+  border: none;
+}
+
+.btn-info {
+  background: #0369a1;
+  color: white;
+  border: none;
+  width: 100%;
+}
+
+/* Previous Orders */
+.card {
+  border-radius: 16px;
+  margin-bottom: 1.5rem;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  border: none;
+  overflow: hidden;
+}
+
+.card-body {
+  padding: 1.5rem;
+}
+
+.card-title {
+  font-size: 1.1rem;
+  margin-bottom: 1rem;
+  color: #1a237e;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.card h4 {
+  font-size: 0.95rem;
+  margin-bottom: 0.5rem;
+  color: #444;
+}
+
+.card h4 strong {
+  color: #555;
+}
+
+/* Pagination */
+.pagination {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  justify-content: center;
+  margin-top: 2rem;
+}
+
+.page-link {
+  padding: 0.6rem 1rem;
+  border-radius: 12px;
+  background: white;
+  border: 1px solid #eee;
+  color: #4f46e5;
+  font-weight: 500;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.page-item.active .page-link {
+  background: #4f46e5;
+  color: white;
+  border-color: #4f46e5;
+}
+
+/* Loading State */
+h4:empty:before {
+  content: "Loading...";
+  color: #666;
+  font-style: italic;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 480px) {
+  .btn {
+    flex: 1 1 100%;
+  }
+  
+  .mb-4 h2 {
+    font-size: 1.3rem;
+  }
+  
+  #order-summary h4 {
+    font-size: 1.1rem;
+  }
+  
+  .img-thumbnail {
+    max-width: 100px;
+  }
+}
+
+/* Animation for better UX */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+#order-summary, .card {
+  animation: fadeIn 0.4s ease-out forwards;
+}
+
+
+
 
 /* Confirmation Message */
 .confirmation-message {
@@ -1895,7 +2256,7 @@ h2 {
 }
 
 .admin-tabs button.active {
-  border-bottom: 2px solid #007bff;
+  border-bottom: 2px solid #1f2921;
   font-weight: bold;
   color: #000;
 }
@@ -1917,7 +2278,7 @@ h2 {
 
 .add-product-form button {
   grid-column: span 2;
-  background-color: #28a745;
+  background-color: #212b23;
   color: white;
   border: none;
   cursor: pointer;
@@ -2053,6 +2414,7 @@ h2 {
     padding: 20px;
     box-shadow: none;
     border-radius: 0;
+    margin-top: 8rem;
   }
 
   .admin-tabs {
@@ -2092,5 +2454,116 @@ h2 {
   .order-total {
     color: #000;
     font-size: 12px;
+  }
+
+
+  /* forget password css  */
+  .auth-form {
+    max-width: 400px;
+    margin: 3rem auto;
+    padding: 2rem;
+    background-color: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    text-align: center;
+  }
+  
+  .auth-form h2 {
+    color: #2c3e50;
+    margin-bottom: 1.8rem;
+    font-size: 1.8rem;
+    font-weight: 600;
+  }
+  
+  .auth-form input {
+    width: 100%;
+    padding: 14px 16px;
+    margin-bottom: 1.2rem;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    box-sizing: border-box;
+  }
+  
+  .auth-form input:focus {
+    outline: none;
+    border-color: #4a90e2;
+    box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.2);
+  }
+  
+  .auth-form input::placeholder {
+    color: #95a5a6;
+  }
+  
+  .auth-form button {
+    width: 100%;
+    padding: 14px;
+    background-color: #212b23;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-top: 0.5rem;
+  }
+  
+  .auth-form button:hover {
+    background-color: #3a7bc8;
+    transform: translateY(-1px);
+  }
+  
+  .auth-form button:active {
+    transform: translateY(0);
+  }
+  
+  /* Responsive adjustments */
+  @media (max-width: 768px) {
+    .auth-form {
+      padding: 1.5rem;
+      margin: 2rem 1rem;
+    }
+    
+    .auth-form h2 {
+      font-size: 1.5rem;
+    }
+  }
+  
+  @media (max-width: 480px) {
+    .auth-form {
+      padding: 1.2rem;
+      margin-top: 8rem;
+    }
+    
+    .auth-form input {
+      padding: 12px 14px;
+    margin-bottom: 1rem;
+    }
+    
+    .auth-form button {
+      padding: 12px;
+      background-color: #212b23;
+    }
+  }
+
+  /* login js css */
+  .for-pass {
+    padding: 1rem;
+    color: #212b23;
+  }
+
+  /* not fount css  */
+  .e-container {
+    margin-top: 8rem;
+    padding: 2rem;
+    color: #000;
+  }
+  .not-found {
+    margin-top: 8rem;
+    padding: 2rem;
+    color: #000;
   }
 }
