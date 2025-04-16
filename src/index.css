@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap');
 
 /* src/assets/fonts/fonts.css */
 /* @font-face {
@@ -25,7 +25,7 @@
 
 /* base styles */
 body {
-  font-family: Montserrat, sans-serif !important;  margin: 0;
+  font-family: "Playfair Display", serif;
   padding: 0;
   /* background: linear-gradient(to bottom, #c2d9ff, #ffffff); */
 }
@@ -33,10 +33,9 @@ section {
   /* background: #ffffff; */
 }
 * {
-  /* margin: 0;
-  font-family: "Quicksand";
-  color: #333; */
-  
+   margin: 0;
+   font-family: "Playfair Display", serif;
+
 }
 
 /* annoucement slider  */
@@ -259,7 +258,7 @@ section {
     border-radius: 8px;
     background-color: #ffffff;
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.05);
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-family: "Playfair Display", serif;
   }
   /* .admin-panel {
     padding: 4rem 1rem 4rem 1rem;
@@ -402,7 +401,7 @@ section {
         background: #f8f9fa;
     border-radius: 10px;
     box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
-    font-family: 'Segoe UI', sans-serif;
+    font-family: "Playfair Display", serif;
   }
   
   .account-container h2 {
@@ -503,12 +502,12 @@ section {
     top: 60px;
     left: 0;
     right: 0;
-    background-color: #a47f4a;
+    background-color: #eeeddb;
     z-index: 1;
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding: 20px 20px;
+    padding: 10px 10px;
   }
   .navbar-section {
     /* padding: 0px; */
@@ -517,15 +516,18 @@ section {
 
   .navbar-container {
     flex-direction: column;
-    gap: 15px;
+    gap: 0px;
   }
   .navbar-container a {
-    background-color: #bcdda8;
-    padding: 10px;
-    margin: 5px;
-    border-radius: 15px;
-    text-decoration: none;
-    color: #000;
+        /* background-color: #bcdda8; */
+        padding: 16px 0px;
+        margin: 5px;
+        /* border-radius: 15px; */
+        text-decoration: none;
+        color: #212b23;
+        /* border-bottom: 1px solid; */
+        border-top: 0.5px solid #c1c1c1 ;
+        text-transform: uppercase;
   }
 
   /* cart  */
@@ -687,7 +689,7 @@ padding: 0; */
 
 .product-collection-section {
   text-align: center;
-  font-family: Arial, sans-serif;
+  font-family: "Playfair Display", serif;
 }
 
 h2 {
@@ -1369,7 +1371,7 @@ h2 {
   }
   .navbar-container .active {
     font-weight: bold;
-    color: #f47c7c; /* or any color to indicate it's active */
+    color: #212b23; /* or any color to indicate it's active */
   }
   
   /* footer section  */
@@ -1491,23 +1493,24 @@ h2 {
 .slide-menu {
   position: fixed;
   top: 0;
-  right: -300px;
+  right: -350px;
   height: 100%;
-  width: 250px;
-  background-color: #a47f4a;
+  width: 310px;
+  background-color: #eeeddb;
   z-index: 999;
-  transition: right 0.3s ease-in-out;
+  transition: left 0.6s cubic-bezier(0.77, 0, 0.175, 1); /* slow & smooth */
   padding: 20px;
   box-shadow: -2px 0 5px rgba(0, 0, 0, 0.1);
 }
 
 .slide-menu.open {
-  right: 0;
+  left: 0;
 }
 
 .slide-menu-header {
   display: flex;
   justify-content: flex-end;
+  color: #1f2921;
 }
 
 .close-icon {
@@ -1533,7 +1536,7 @@ h2 {
   max-width: 600px;
   margin: 0 auto;
   padding: 1rem;
-  font-family: 'Arial', sans-serif;
+  font-family: "Playfair Display", serif;
 }
 
 .billing-title {
@@ -1619,7 +1622,7 @@ h2 {
   min-height: 100vh;
   background-color: #f8f9fa;
   padding: 2rem;
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-family: "Playfair Display", serif;
 }
 
 /* Success Card */
@@ -1784,7 +1787,7 @@ h2 {
     .order-details {
       padding: 16px;
       background-color: #ffffff;
-      font-family: 'Segoe UI', sans-serif;
+      font-family: "Playfair Display", serif;
       font-size: 14px;
       color: #222;
       line-height: 1.6;
@@ -1867,7 +1870,7 @@ h2 {
   background-color: #f7f9fc;
   border-radius: 10px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  font-family: 'Segoe UI', sans-serif;
+  font-family: "Playfair Display", serif;
 }
 
 .admin-panel h2,

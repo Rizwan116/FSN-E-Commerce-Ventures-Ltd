@@ -101,7 +101,7 @@ function Navbar() {
             </NavLink>
             <NavLink
               onClick={handleLogout}
-              style={{ marginLeft: '10px', cursor: 'pointer', color: 'red' }}
+              style={{ marginLeft: '0px', cursor: 'pointer', color: 'red' }}
             >
               Logout
             </NavLink>
