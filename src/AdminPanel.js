@@ -12,6 +12,7 @@ function AdminPanel() {
     image: "",
     stock: "",
   });
+  
 
   const fetchProducts = async () => {
     try {

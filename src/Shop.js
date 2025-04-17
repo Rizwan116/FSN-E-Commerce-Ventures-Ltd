@@ -1,6 +1,131 @@
+import React, { useEffect, useState } from 'react';
+import { database } from './firebase';
+import { ref as dbRef, onValue } from 'firebase/database';
+import { useDispatch } from 'react-redux';
+import { addToCart } from './redux/cartSlice';
+// import './Shop.css';
+
 function Shop() {
-    return <div className="e-container"><h1>Welcome to the Shop Page</h1></div>;
-  }
-  
-  export default Shop;
-  
+  const [products, setProducts] = useState([]);
+  const [filtered, setFiltered] = useState([]);
+  const [categoryList, setCategoryList] = useState([]);
+  const [sortOption, setSortOption] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState('All');
+
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    const productsRef = dbRef(database, 'products');
+    onValue(productsRef, (snapshot) => {
+      const data = snapshot.val();
+      if (data) {
+        const productList = Object.entries(data).map(([id, item]) => ({
+          id,
+          ...item,
+        }));
+        setProducts(productList);
+        setFiltered(productList);
+        extractCategories(productList);
+      }
+    });
+  }, []);
+
+  const extractCategories = (data) => {
+    const categories = ['All', ...new Set(data.map((item) => item.category || 'Uncategorized'))];
+    setCategoryList(categories);
+  };
+
+  const handleAddToCart = (product) => {
+    dispatch(addToCart({ ...product, quantity: 1 }));
+    alert(`✅ ${product.name || product.title} added to cart`);
+  };
+
+  const handleSort = (option) => {
+    let sorted = [...filtered];
+
+    switch (option) {
+      case 'priceLowHigh':
+        sorted.sort((a, b) => a.price - b.price);
+        break;
+      case 'priceHighLow':
+        sorted.sort((a, b) => b.price - a.price);
+        break;
+      case 'nameAZ':
+        sorted.sort((a, b) => a.name.localeCompare(b.name));
+        break;
+      case 'nameZA':
+        sorted.sort((a, b) => b.name.localeCompare(a.name));
+        break;
+      case 'bestSelling':
+        sorted.sort((a, b) => (b.sales || 0) - (a.sales || 0));
+        break;
+      case 'newToOld':
+        sorted.sort((a, b) => new Date(b.dateAdded || '') - new Date(a.dateAdded || ''));
+        break;
+      default:
+        break;
+    }
+
+    setFiltered(sorted);
+    setSortOption(option);
+  };
+
+  const handleCategoryChange = (category) => {
+    setSelectedCategory(category);
+    if (category === 'All') {
+      setFiltered(products);
+    } else {
+      const filteredByCategory = products.filter((item) => item.category === category);
+      setFiltered(filteredByCategory);
+    }
+  };
+
+  return (
+    <div className="shop-page">
+      <h2>🛍️ Welcome to the Shop</h2>
+
+      {/* 🔍 Filter Controls */}
+      <div className="filter-controls">
+        <select value={sortOption} onChange={(e) => handleSort(e.target.value)}>
+          <option value="">Sort By</option>
+          <option value="priceLowHigh">Price: Low to High</option>
+          <option value="priceHighLow">Price: High to Low</option>
+          <option value="nameAZ">Name: A to Z</option>
+          <option value="nameZA">Name: Z to A</option>
+          <option value="bestSelling">Best Selling</option>
+          <option value="newToOld">New to Old</option>
+        </select>
+
+        <select value={selectedCategory} onChange={(e) => handleCategoryChange(e.target.value)}>
+          {categoryList.map((cat, i) => (
+            <option key={i} value={cat}>{cat}</option>
+          ))}
+        </select>
+      </div>
+
+      {/* 🛍️ Product List */}
+      <div className="product-list">
+        {filtered.map((product) => (
+          <div className="product-card" key={product.id}>
+            <img
+              src={product.image}
+              alt={product.name}
+              className="product-image"
+            />
+            <h3 className="product-name">{product.name}</h3>
+            <h3 className="product-rating">⭐ {product.ratings || 4.0}</h3>
+            <h3 className="product-price">₹ {product.price}</h3>
+            <button
+              className="add-to-cart-btn"
+              onClick={() => handleAddToCart(product)}
+            >
+              Add to Cart 🛒
+            </button>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+export default Shop;
