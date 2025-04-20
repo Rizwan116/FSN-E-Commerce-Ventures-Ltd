@@ -264,7 +264,7 @@ function Product() {
           <div key={idx} style={{ border: "1px solid #ddd", padding: "10px", marginBottom: "10px" }}>
             <strong>{r.username}</strong> <strong>({r.category})</strong> - <strong>{r.date}</strong>
             <div>{"★".repeat(r.stars)}{'☆'.repeat(5 - r.stars)}</div>
-            {r.image && <img src={r.image} alt="Review" style={{ maxWidth: "100px" }} />}
+            {/* {r.image && <img src={r.image} alt="Review" style={{ maxWidth: "100px" }} />} */}
             <h5>{r.comment}</h5>
           </div>
         ))}
