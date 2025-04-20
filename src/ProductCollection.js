@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
-import { database, ref, get, child, set } from "./firebase";
+import { database, ref, get, child, set, update } from "./firebase";  // 🛠 Import update from firebase
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation } from "swiper/modules";
 import "swiper/css";
@@ -9,7 +9,7 @@ import productBanner from "./assets/Asset1.png";
 import productBanner2 from "./assets/Asset11.png";
 import { useDispatch, useSelector } from "react-redux";
 import { addToCart } from "./redux/cartSlice";
-import { useLocation } from "react-router-dom";
+import { useLocation, Link } from "react-router-dom";
 import OurStory from './OurStory';
 
 function ProductCollection() {
@@ -22,13 +22,11 @@ function ProductCollection() {
   const [isUpdatingStock, setIsUpdatingStock] = useState({});
   const swiperRef = useRef(null);
 
-  // Create a memoized function to fetch products
   const fetchProducts = useCallback(async () => {
     try {
       const dbRef = ref(database);
       const products = {};
 
-      // Fetch from "products"
       const newSnap = await get(child(dbRef, "products"));
       if (newSnap.exists()) {
         const data = newSnap.val();
@@ -37,7 +35,6 @@ function ProductCollection() {
         });
       }
 
-      // Fetch from "product"
       const oldSnap = await get(child(dbRef, "product"));
       if (oldSnap.exists()) {
         const data = oldSnap.val();
@@ -53,13 +50,8 @@ function ProductCollection() {
   }, []);
 
   useEffect(() => {
-    // Fetch products when component mounts or when returning to this page
     fetchProducts();
-    
-    // Set up an interval to refresh product data periodically (every 10 seconds)
     const intervalId = setInterval(fetchProducts, 10000);
-    
-    // Clear interval on component unmount
     return () => clearInterval(intervalId);
   }, [fetchProducts, location.key]);
 
@@ -70,7 +62,6 @@ function ProductCollection() {
     }));
   }, []);
 
-  // Helper function to get quantity in cart
   const getQuantityInCart = useCallback((productId) => {
     return cartItems.find((item) => item.id === productId)?.quantity || 0;
   }, [cartItems]);
@@ -78,7 +69,7 @@ function ProductCollection() {
   const handleAddToCart = useCallback(async (product) => {
     const quantityInCart = getQuantityInCart(product.id);
     const stock = typeof product.stock === 'number' ? product.stock : 0;
-    
+
     if (stock <= 0) {
       alert("This product is out of stock.");
       return;
@@ -89,14 +80,16 @@ function ProductCollection() {
       return;
     }
 
-    setIsUpdatingStock((prev) => ({ ...prev, [product.id]: true }));
+    setIsUpdatingStock((prev) => ({ ...prev, [product.id]: true })); 
 
     try {
-      // First update the stock in Firebase
       const newStock = stock - 1;
-      await set(ref(database, `products/${product.id}/stock`), newStock);
-      
-      // Then dispatch to Redux
+
+      // ✅ Update stock in Firebase using update() method
+      await update(ref(database, `products/${product.id}`), {
+        stock: newStock,
+      });
+
       dispatch(
         addToCart({
           id: product.id,
@@ -106,18 +99,16 @@ function ProductCollection() {
           stock: newStock,
         })
       );
-      
-      // Refresh products to get the latest stock
-      await fetchProducts();
+
+      await fetchProducts(); // Re-fetch to reflect updated stock
     } catch (error) {
       console.error("Error updating stock:", error);
       alert("Failed to update product stock. Please try again.");
     } finally {
-      setIsUpdatingStock((prev) => ({ ...prev, [product.id]: false }));
+      setIsUpdatingStock((prev) => ({ ...prev, [product.id]: false })); // Reset loading state
     }
   }, [dispatch, fetchProducts, getQuantityInCart]);
 
-  // Memoized product card renderer
   const renderProductCard = useCallback((product) => {
     const quantityInCart = getQuantityInCart(product.id);
     const stock = typeof product.stock === 'number' ? product.stock : 0;
@@ -128,35 +119,31 @@ function ProductCollection() {
     return (
       <SwiperSlide key={product.id}>
         <div className="product-card">
-          <img src={product.image} alt={product.name} />
-          <h1>{product.name}</h1>
+          <Link to={`/product/${product.id}`}>
+            <img src={product.image} alt={product.name} />
+            <h1>{product.name}</h1>
+            <div className="star-rating">
+              {[1, 2, 3, 4, 5].map((star) => (
+                <span
+                  key={star}
+                  className={`star ${ratings[product.id] >= star ? "filled" : ""}`}
+                  onClick={() => handleRating(product.id, star)}
+                >
+                  ★
+                </span>
+              ))}
+            </div>
+            <h3>₹{product.price}</h3>
+          </Link>
 
-          <div className="star-rating">
-            {[1, 2, 3, 4, 5].map((star) => (
-              <span
-                key={star}
-                className={`star ${ratings[product.id] >= star ? "filled" : ""}`}
-                onClick={() => handleRating(product.id, star)}
-              >
-                ★
-              </span>
-            ))}
-          </div>
-
-          <h3>${product.price}</h3>
-          {/* {stock > 0 && (
-            <p className="stock-status">
-              {stock - quantityInCart} available
-            </p>
-          )} */}
           <button
             className={`view-product-btn ${isOutOfStock || isStockExceeded ? "sold-out" : ""}`}
             onClick={() => handleAddToCart(product)}
             disabled={isOutOfStock || isStockExceeded || isLoading}
           >
-            {isLoading ? "UPDATING..." : 
-             isOutOfStock ? "SOLD OUT" : 
-             isStockExceeded ? "MAX REACHED" : "ADD TO CART"}
+            {isLoading ? "UPDATING..." :
+              isOutOfStock ? "SOLD OUT" :
+              isStockExceeded ? "MAX REACHED" : "ADD TO CART"}
           </button>
         </div>
       </SwiperSlide>

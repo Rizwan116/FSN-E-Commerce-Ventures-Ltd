@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { database } from './firebase';
 import { ref as dbRef, onValue } from 'firebase/database';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { addToCart } from './redux/cartSlice';
-// import './Shop.css';
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 function Shop() {
   const [products, setProducts] = useState([]);
@@ -13,6 +14,7 @@ function Shop() {
   const [selectedCategory, setSelectedCategory] = useState('All');
 
   const dispatch = useDispatch();
+  const cartItems = useSelector((state) => state.cart.items); // ✅ get items from Redux
 
   useEffect(() => {
     const productsRef = dbRef(database, 'products');
@@ -36,8 +38,16 @@ function Shop() {
   };
 
   const handleAddToCart = (product) => {
+    const cartItem = cartItems.find((item) => item.id === product.id);
+    const currentQtyInCart = cartItem ? cartItem.quantity : 0;
+
+    if (product.stock === 0 || currentQtyInCart >= product.stock) {
+      toast.error(`${product.name || product.title} is out of stock!`);
+      return;
+    }
+
     dispatch(addToCart({ ...product, quantity: 1 }));
-    alert(`✅ ${product.name || product.title} added to cart`);
+    toast.success(`${product.name || product.title} added to cart 🛒`);
   };
 
   const handleSort = (option) => {
@@ -84,7 +94,7 @@ function Shop() {
     <div className="shop-page">
       <h2>🛍️ Welcome to the Shop</h2>
 
-      {/* 🔍 Filter Controls */}
+      {/* Filter Controls */}
       <div className="filter-controls">
         <select value={sortOption} onChange={(e) => handleSort(e.target.value)}>
           <option value="">Sort By</option>
@@ -103,27 +113,35 @@ function Shop() {
         </select>
       </div>
 
-      {/* 🛍️ Product List */}
+      {/* Product List */}
       <div className="product-list">
-        {filtered.map((product) => (
-          <div className="product-card" key={product.id}>
-            <img
-              src={product.image}
-              alt={product.name}
-              className="product-image"
-            />
-            <h3 className="product-name">{product.name}</h3>
-            <h3 className="product-rating">⭐ {product.ratings || 4.0}</h3>
-            <h3 className="product-price">₹ {product.price}</h3>
-            <button
-              className="add-to-cart-btn"
-              onClick={() => handleAddToCart(product)}
-            >
-              Add to Cart 🛒
-            </button>
-          </div>
-        ))}
+        {filtered.map((product) => {
+          const cartItem = cartItems.find((item) => item.id === product.id);
+          const currentQtyInCart = cartItem ? cartItem.quantity : 0;
+          const outOfStock = product.stock === 0 || currentQtyInCart >= product.stock;
+
+          return (
+            <div className="product-card" key={product.id}>
+              <img src={product.image} alt={product.name} className="product-image" />
+              <h3 className="product-name">{product.name}</h3>
+              <h3 className="product-rating">⭐ {product.ratings || 4.0}</h3>
+              <h3 className="product-price">₹ {product.price}</h3>
+              {outOfStock ? (
+                <button className="add-to-cart-btn" disabled>
+                  ❌ Not Available
+                </button>
+              ) : (
+                <button className="add-to-cart-btn" onClick={() => handleAddToCart(product)}>
+                  Add to Cart 🛒
+                </button>
+              )}
+            </div>
+          );
+        })}
       </div>
+
+      {/* Toast Message Container */}
+      <ToastContainer position="top-right" autoClose={2000} />
     </div>
   );
 }

@@ -12,7 +12,10 @@ import {
 import Navbar from "./Navbar";
 
 function Header() {
-  const cartCount = useSelector((state) => state.cart.totalQuantity); // 🔥 Redux cart count
+  // 🔄 Calculate total quantity from all cart items
+  const cartItems = useSelector((state) => state.cart.items);
+  const cartCount = cartItems.reduce((sum, item) => sum + item.quantity, 0);
+
   const [menuOpen, setMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
 

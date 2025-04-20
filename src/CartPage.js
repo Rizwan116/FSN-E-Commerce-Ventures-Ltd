@@ -30,7 +30,13 @@ function CartPage() {
     return total + cleanPrice(item.price) * item.quantity;
   }, 0);
 
+  // const handleRemove = (id) => {
+  //   dispatch(removeFromCart(id));
+  //   toast.info("Item removed from cart 🗑️");
+  // };
+
   const handleRemove = (id) => {
+    console.log(`Removing item with id: ${id}`);  // Log for debugging
     dispatch(removeFromCart(id));
     toast.info("Item removed from cart 🗑️");
   };
@@ -106,6 +112,7 @@ function CartPage() {
                     <button
                       className="remove-btn"
                       onClick={() => handleRemove(item.id)}
+                      aria-label={`Remove ${item.title || item.name}`}
                     >
                       <FontAwesomeIcon icon={faTrash} /> Remove
                     </button>

@@ -239,30 +239,60 @@ function Account() {
 
   const handleSave = async () => {
     const storedUser = JSON.parse(localStorage.getItem("user"));
-    if (!storedUser?.phone && !storedUser?.email) return;
-
-    let updates = { ...userData };
-
-    // Preserve the existing password if not being updated here
-    if (!updates.password) {
-      const userRef = dbRef(database, `users/${storedUser.phone}`);
-      const snapshot = await get(userRef);
-      updates.password = snapshot.val()?.password || "";
+    if (!storedUser?.phone && !storedUser?.email) {
+      alert("User not found in localStorage");
+      return;
     }
-
-    // Handle photo upload
-    if (photoFile) {
-      const photoRef = storageRef(storage, `profile_photos/${storedUser.phone || storedUser.email}`);
-      await uploadBytes(photoRef, photoFile);
-      const downloadURL = await getDownloadURL(photoRef);
-      updates.photo = downloadURL;
+  
+    const userKey = storedUser.phone || storedUser.email;
+    const updates = { ...userData };
+    console.log("User Key:", userKey);
+  
+    try {
+      // Step 1: Upload photo if selected
+      if (photoFile) {
+        const storagePath = `profile_photos/${userKey.replace(/[@.]/g, "_")}_${Date.now()}`;
+        const imageRef = storageRef(storage, storagePath);
+  
+        console.log("Uploading file to:", storagePath);
+        const uploadResult = await uploadBytes(imageRef, photoFile);
+        console.log("Upload successful:", uploadResult);
+  
+        // Step 2: Get download URL
+        const downloadURL = await getDownloadURL(imageRef);
+        console.log("Download URL:", downloadURL);
+  
+        updates.photo = downloadURL;
+      } else {
+        console.log("No photo selected for upload.");
+      }
+  
+      // Step 3: Ensure password is preserved if blank
+      if (!updates.password) {
+        const snapshot = await get(dbRef(database, `users/${userKey}`));
+        if (snapshot.exists()) {
+          updates.password = snapshot.val().password;
+        }
+      }
+  
+      // Step 4: Save user data
+      await set(dbRef(database, `users/${userKey}`), updates);
+      console.log("User data updated in Firebase DB");
+  
+      // Step 5: Save to localStorage
+      localStorage.setItem("user", JSON.stringify(updates));
+      setUserData(updates);
+      setPhotoFile(null);
+  
+      alert("✅ Profile updated!");
+    } catch (error) {
+      console.error("❌ Error in handleSave:", error);
+      alert("Something went wrong. Check console for details.");
     }
-
-    const userKey = storedUser.phone || updates.phone;
-    await set(dbRef(database, `users/${userKey}`), updates);
-    localStorage.setItem("user", JSON.stringify(updates));
-    alert("✅ Profile updated!");
   };
+  
+  
+  
 
   const handlePasswordChange = async () => {
     const storedUser = JSON.parse(localStorage.getItem("user"));
@@ -303,14 +333,16 @@ function Account() {
           name="phone"
           placeholder="Phone"
           value={userData.phone}
-          readOnly
+          
         />
+        {/* readOnly */}
         <input
           name="email"
           placeholder="Email"
           value={userData.email}
-          readOnly
+          
         />
+        {/* readOnly */}
 
         <div className="photo-section">
           <label>Profile Photo:</label>
@@ -355,4 +387,3 @@ function Account() {
 }
 
 export default Account;
-

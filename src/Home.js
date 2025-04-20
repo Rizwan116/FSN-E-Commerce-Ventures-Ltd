@@ -10,7 +10,6 @@ import PageTransition from "./PageTransition";
 import banner from "./assets/Asset.png";
 import Announcement from './Announcement';
 
-
 function Home() {
   return (
     <PageTransition>
@@ -29,7 +28,14 @@ function Home() {
         <SlideShow />
         {/* <Footer /> */}
         
-      
+        {/* {products.map((product) => (
+          <div key={product.id} className="product-card">
+            <Link to={`/product/${product.id}`}>
+              <img src={product.image} alt={product.name} />
+              <h3>{product.name}</h3>
+            </Link>
+          </div>
+        ))} */}
         
        
 

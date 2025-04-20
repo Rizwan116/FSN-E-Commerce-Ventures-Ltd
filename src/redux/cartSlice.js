@@ -1,7 +1,8 @@
 import { createSlice } from "@reduxjs/toolkit";
 
 // Load cart from localStorage
-const savedCart = JSON.parse(localStorage.getItem("cartState"));
+// const savedCart = JSON.parse(localStorage.getItem("cartState"));
+const savedCart = JSON.parse(localStorage.getItem("cartState")) || { items: [], totalQuantity: 0, totalAmount: 0, lastUpdated: null };
 
 const initialState = savedCart || {
   items: [],
@@ -58,6 +59,7 @@ const cartSlice = createSlice({
       const itemToRemove = state.items.find((item) => item.id === itemId);
 
       if (itemToRemove) {
+        // ❗This only removes from cart state — no database (stock) is touched here.
         state.totalQuantity -= itemToRemove.quantity;
         state.items = state.items.filter((item) => item.id !== itemId);
         state.totalAmount = calculateTotalAmount(state.items);

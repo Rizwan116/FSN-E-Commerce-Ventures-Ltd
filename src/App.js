@@ -17,6 +17,7 @@ import ScrollToTop from "./ScrollToTop";
 import Home from "./Home";
 import Announcement from "./Announcement";
 import AboutUs from "./AboutUs";
+// import About from "./About";
 import OurStory from "./OurStory";
 import Shop from "./Shop";
 // import Blog from "./Blog";
@@ -39,6 +40,7 @@ import Signup from "./Signup";
 import Login from "./Login";
 import ForgetPassword from "./ForgetPassword";
 import AdminPanel from "./AdminPanel";
+import Product from "./Product";
 
 // ✅ Separate location logic (needed for AnimatePresence)
 const AppRoutes = () => {
@@ -55,6 +57,8 @@ const AppRoutes = () => {
           <Route path="/" element={<Home />} />
           <Route path="/shop" element={<Shop />} />
           <Route path="/aboutUs" element={<AboutUs />} />
+          <Route path="/product/:productId" element={<Product />} />
+          {/* <Route path="/about" element={<About />} /> */}
           <Route path="/order-success" element={<OrderSuccess />} />
           <Route path="/OurStory" element={<OurStory />} />
           {/* <Route path="/blog" element={<Blog />} /> */}
