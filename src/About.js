@@ -1,6 +1,6 @@
 import React from "react";
-import productImage from "./assets/about-us.png";
-import productImage2 from "./assets/about-us2.png";
+// import productImage from "./assets/about-us.png";
+// import productImage2 from "./assets/about-us2.png";
 import { transform } from "framer-motion";
 
 
@@ -22,25 +22,25 @@ const AboutUsCard = ({ image, title, buttonText }) => {
 };
 
 const About = () => {
-  const aboutData = [
-    {
-      id: 1,
-      image: productImage, // Replace with actual images
-      title: "Innovative Formulations",
-      buttonText: "Read More",
-    },
-    {
-      id: 2,
-      image: productImage2, // Replace with actual images
-      title: "Science-First Marketing",
-      buttonText: "Read More",
-    },
-    {
-      id: 3,
-      image: productImage,
-      title: "Intentional Ingredients",
-      buttonText: "Read More",
-    },
+  // const aboutData = [
+  //   {
+  //     id: 1,
+  //     image: productImage, // Replace with actual images
+  //     title: "Innovative Formulations",
+  //     buttonText: "Read More",
+  //   },
+  //   {
+  //     id: 2,
+  //     image: productImage2, // Replace with actual images
+  //     title: "Science-First Marketing",
+  //     buttonText: "Read More",
+  //   },
+  //   {
+  //     id: 3,
+  //     image: productImage,
+  //     title: "Intentional Ingredients",
+  //     buttonText: "Read More",
+  //   },
     // {
     //   id: 4,
     //   image: productImage,
@@ -59,12 +59,12 @@ const About = () => {
     //   title: "Intentional Ingredients",
     //   buttonText: "Read More",
     // },
-  ];
+  // ];
 
   return (
     <section className="about-us-section">
       <h3 style={{textTransform: "capitalize"}} className="about-us-title">Handmade Cleansing Bar</h3>
-      <span style={{textTransform: "uppercase"}}>Lorem Ipsum dolor sit amet, consectetuer adipicing Lorem Ipsum dolor sit amet, consectetuer adipicing</span>
+      <span style={{textTransform: "uppercase"}}>We make clean and natural soap a part of your everyday life, just as it should be.</span>
       <br/>
       <br/>
       <a className="about-us-title-button" href="">SHOP NOW</a>

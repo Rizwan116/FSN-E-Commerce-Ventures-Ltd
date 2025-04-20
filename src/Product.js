@@ -224,7 +224,7 @@ function Product() {
             color: "#fff",
             padding: "5px 10px",
             borderRadius: "4px",
-            zIndex: 10,
+            zIndex: 1,
           }}
         >
           {zoomed ? "Zoom Out" : "Zoom In"}

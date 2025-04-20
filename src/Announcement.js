@@ -3,9 +3,9 @@ import { useState, useEffect } from "react";
   const Announcement = () => {
     const announcements = [
       "COMPLIMENTARY SAMPLES WITH ALL ORDERS",
-      "Buy 2 or more products to get FLAT 15% OFF with code TAKE2",
-      "Buy 3 or more products to get FLAT 15% OFF with code TAKE2",
-      "Buy 4 or more products to get FLAT 15% OFF with code TAKE2",
+      "COMPLIMENTARY SAMPLES WITH ALL ORDERS",
+      "COMPLIMENTARY SAMPLES WITH ALL ORDERS",
+      "COMPLIMENTARY SAMPLES WITH ALL ORDERS",
     ];
 
     const [index, setIndex] = useState(0);

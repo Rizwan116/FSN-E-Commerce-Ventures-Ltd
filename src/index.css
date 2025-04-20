@@ -1383,7 +1383,7 @@ h2 {
     z-index: 10;
     cursor: pointer;
     border-radius: 50%;
-    font-size: 16px;
+    font-size: 14px;
   }
 
   .story-img-container {
@@ -1399,7 +1399,8 @@ h2 {
 
   .nav-button:hover {
   
-    background: #444444;
+    background: #344431;
+    color: #fdfdfd;
   }
  
   .nav-button.left {

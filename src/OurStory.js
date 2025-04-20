@@ -8,7 +8,7 @@ const OurStory = () => {
   return (
     <section className="about-us-section">
       <h3 style={{textTransform: "capitalize"}} className="about-us-title">Our Story</h3>
-      <span style={{textTransform: "uppercase"}}>Lorem Ipsum dolor sit amet, consectetuer adipicing Lorem Ipsum dolor sit amet, consectetuer adipicing</span>
+      <span style={{textTransform: "uppercase"}}>From our hands to yours, YŌSO offers a promise of authenticity, sustainability, and enduring beauty.</span>
       <br/>
       <br/>
       

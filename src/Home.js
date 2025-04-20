@@ -7,7 +7,7 @@ import PageTransition from "./PageTransition";
 
 
 // ✅ Import your actual homepage banner image
-import banner from "./assets/Asset.png";
+import banner from "./assets/Main-banner.jpg";
 import Announcement from './Announcement';
 
 function Home() {

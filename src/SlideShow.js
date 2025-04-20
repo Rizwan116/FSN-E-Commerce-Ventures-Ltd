@@ -5,15 +5,15 @@ import "swiper/css";
 import "swiper/css/navigation";
 
 // Sample images (replace these with your own paths)
-import img1 from "./assets/Website_03.jpg";
+import img1 from "./assets/slider-1.png";
 // import img2 from "./assets/banner.png";
-import img2 from "./assets/1.5x/Asset 2hdpi.png";
-
+import img2 from "./assets/slider-2.png";
+import img3 from "./assets/slider-3.png";
 // import img3 from "./assets/insta3.jpg";
 // import img4 from "./assets/insta4.jpg";
 // import img5 from "./assets/insta5.jpg";
 // img3, img4, img5
-const images = [img1, img2 ];
+const images = [img1, img2, img3 ];
 
 function Slide() {
   const swiperRef = useRef(null);
@@ -28,7 +28,7 @@ function Slide() {
 
   return (
     <section className="slide-section">
-      <div className="slide-title"><h3>@yococare</h3></div>
+      <div className="slide-title"><h3>@yosocare</h3></div>
       <div className="slide-container">
         <button className="nav-button left" onClick={slidePrev}>
           &#10094;
