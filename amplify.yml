@@ -8,9 +8,10 @@ frontend:
       commands:
         - npm install && npm install --prefix frontend && npm run build --prefix frontend
   artifacts:
-    baseDirectory: build
+    baseDirectory: frontend/build
     files:
       - '**/*'
   cache:
     paths:
       - .npm/**/*
+      - frontend/node_modules/**/*
