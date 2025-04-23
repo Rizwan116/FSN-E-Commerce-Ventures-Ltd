@@ -6,7 +6,7 @@ frontend:
         - npm ci --cache .npm --prefer-offline
     build:
       commands:
-        - npm install && npm install --prefix frontend && npm run build --prefix frontend
+        - npm install --prefix backend && npm install --prefix frontend && npm run build --prefix frontend
   artifacts:
     baseDirectory: frontend/build
     files:
@@ -15,3 +15,4 @@ frontend:
     paths:
       - .npm/**/*
       - frontend/node_modules/**/*
+      - backend/node_modules/**/*
