@@ -4,6 +4,8 @@ import morgan from 'morgan';
 import helmet from 'helmet';
 import pg from 'pg';
 import dotenv from 'dotenv';
+import path from 'path';
+import { fileURLToPath } from 'url';
 
 import { sql_queries } from './sql_queries.js';
 import { pgClient } from './postgres_db.js';
@@ -12,21 +14,32 @@ import e from 'express';
 
 dotenv.config();
 
-
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-app.use(cors()); // for cross-origin resource sharing
-app.use(morgan('dev'));// for logging requests
-app.use(helmet()); // for security headers
-app.use(express.json()); // for parsing application/json
+// Middleware
+app.use(cors());
+app.use(morgan('dev'));
+app.use(helmet());
+app.use(express.json());
 
-app.use('/api/products', productRoutes); // for product routes
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
-app.use(express.static(path.join(__dirname,"/frontend/build"))); // for serving static files
+// API routes first
+app.use('/api/products', productRoutes);
 
-app.get('*', (req, res) => {
-    res.sendFile(path.resolve(__dirname, "frontend","build","index.html")); // for serving index.html for all other routes
+// Static files
+app.use(express.static(path.join(__dirname, '..', 'frontend', 'build')));
+
+// Catch-all route last
+app.get('/*', (req, res) => {
+    try {
+        res.sendFile(path.join(__dirname, '..', 'frontend', 'build', 'index.html'));
+    } catch (error) {
+        console.error('Error serving index.html:', error);
+        res.status(500).send('Error loading application');
+    }
 });
 
 async function connectDB() {
