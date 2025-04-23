@@ -33,7 +33,7 @@ app.use('/api/products', productRoutes);
 app.use(express.static(path.join(__dirname, '..', 'frontend', 'build')));
 
 // Catch-all route last
-app.get('/*', (req, res) => {
+app.get('/{*splat}', (req, res) => {
     try {
         res.sendFile(path.join(__dirname, '..', 'frontend', 'build', 'index.html'));
     } catch (error) {
