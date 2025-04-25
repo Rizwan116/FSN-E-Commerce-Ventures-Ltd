@@ -26,6 +26,13 @@ app.use(express.json());
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+app.use((req, res, next) => {
+    console.log(`First middleware`);
+    console.log(`Request URL: ${req.url}`);
+    console.log(`Request Method: ${req.method}`);
+    next();
+});
+
 // API routes first
 app.use('/api/products', productRoutes);
 
