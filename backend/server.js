@@ -13,7 +13,7 @@ import productRoutes from './routes/productRoutes.js';
 import authRoutes from './routes/authRoutes.js';
 import e from 'express';
 
-dotenv.config();
+dotenv.config({ path: '.env.local' });
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -23,6 +23,7 @@ app.use(cors());
 app.use(morgan('dev'));
 app.use(helmet());
 app.use(express.json());
+app.use(express.urlencoded({ extended: true })); // Add this line to handle form data
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -41,6 +42,7 @@ app.use('/api/auth', authRoutes);
 // Static files
 app.use(express.static(path.join(__dirname, '..', 'frontend', 'build')));
 
+
 // Catch-all route last
 app.get('/{*splat}', (req, res) => {
     try {
@@ -54,7 +56,12 @@ app.get('/{*splat}', (req, res) => {
 async function connectDB() {
     try {
         await pgClient.connect();
-        await pgClient.query(sql_queries.createProductTableQuery, sql_queries.createOrderTableQuery, sql_queries.createUserTableQuery, sql_queries.createAuthTableQuery);
+        // Execute queries sequentially
+        await pgClient.query(sql_queries.createProductTableQuery);
+        await pgClient.query(sql_queries.createOrderTableQuery);
+        await pgClient.query(sql_queries.createUserTableQuery);
+        await pgClient.query(sql_queries.createAuthTableQuery);
+
         console.log('Connected to the database');
         return true;
     } catch (err) {
