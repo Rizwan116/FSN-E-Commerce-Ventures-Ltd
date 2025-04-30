@@ -10,6 +10,7 @@ import { fileURLToPath } from 'url';
 import { sql_queries } from './sql_queries.js';
 import { pgClient } from './postgres_db.js';
 import productRoutes from './routes/productRoutes.js';
+import authRoutes from './routes/authRoutes.js';
 import e from 'express';
 
 dotenv.config();
@@ -35,6 +36,7 @@ app.use((req, res, next) => {
 
 // API routes first
 app.use('/api/products', productRoutes);
+app.use('/api/auth', authRoutes);
 
 // Static files
 app.use(express.static(path.join(__dirname, '..', 'frontend', 'build')));
@@ -52,21 +54,21 @@ app.get('/{*splat}', (req, res) => {
 async function connectDB() {
     try {
         await pgClient.connect();
-        await pgClient.query(sql_queries.createProductTableQuery);
+        await pgClient.query(sql_queries.createProductTableQuery, sql_queries.createOrderTableQuery, sql_queries.createUserTableQuery, sql_queries.createAuthTableQuery);
         console.log('Connected to the database');
-        // return true;
+        return true;
     } catch (err) {
         console.error('Error connecting to the database', err.stack);
-        // return false;
+        return false;
     }
 }
 
 // Modified server startup
 connectDB().then((connected) => {
-    // if (!connected) {
-    //     console.error('Server startup failed: Could not connect to database');
-    //     process.exit(1); // Exit with error code
-    // }
+    if (!connected) {
+        console.error('Server startup failed: Could not connect to database');
+        process.exit(1); // Exit with error code
+    }
     
     app.listen(PORT, () => {
         console.log(`Server is running on port ${PORT}`);
