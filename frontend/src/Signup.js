@@ -68,6 +68,14 @@ import { useNavigate } from 'react-router-dom';
 import { auth, database } from './firebase';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { ref as dbRef, set, get } from 'firebase/database';
+// import express from 'express';
+// import cors from 'cors';
+
+// const app = express();
+// app.use(express.json());
+// app.use(express.urlencoded({ extended: true }));
+
+// app.use(cors());
 
 const Signup = () => {
   const [form, setForm] = useState({
@@ -101,16 +109,16 @@ const Signup = () => {
 
   const handleSignup = async () => {
     try {
-      const userRef = dbRef(database, "users/" + form.phone);
-      const snapshot = await get(userRef);
+      // const userRef = dbRef(database, "users/" + form.phone);
+      // const snapshot = await get(userRef);
 
-      if (snapshot.exists()) {
-        alert("⚠️ User already exists!");
-        return;
-      }
+      // if (snapshot.exists()) {
+      //   alert("⚠️ User already exists!");
+      //   return;
+      // }
 
-      // Create user in Firebase Auth (optional)
-      await createUserWithEmailAndPassword(auth, form.email, form.password);
+      // // Create user in Firebase Auth (optional)
+      // await createUserWithEmailAndPassword(auth, form.email, form.password);
 
       const newUser = {
         firstName: form.firstName,
@@ -121,11 +129,28 @@ const Signup = () => {
         photo: ""
       };
 
-      await set(userRef, newUser);
-      localStorage.setItem("user", JSON.stringify(newUser));
+      // post to your backend API to save the user at localhost:5000/api/auth/register
+      const response = await fetch('http://localhost:5000/api/auth/register', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(newUser),
+      });
 
-      alert("✅ Signup successful!");
-      navigate("/login");
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
+      }
+      // if (response.status === 409) {
+      //   alert("⚠️ User already exists!");
+      //   return;
+      // }
+      if (response.status === 200) {
+        localStorage.setItem("user", JSON.stringify(newUser));
+        alert("✅ Signup successful!");
+        navigate("/login");
+      }
+
     } catch (error) {
       console.error("Signup error:", error);
       alert("❌ Signup failed: " + error.message);
@@ -134,20 +159,20 @@ const Signup = () => {
 
   const handleLogin = async () => {
     try {
-      const userRef = dbRef(database, "users/" + form.phone);
-      const snapshot = await get(userRef);
+      // const userRef = dbRef(database, "users/" + form.phone);
+      // const snapshot = await get(userRef);
 
-      if (snapshot.exists()) {
-        const user = snapshot.val();
-        if (user.password === form.password) {
-          localStorage.setItem("user", JSON.stringify(user));
-          navigate("/account");
-        } else {
-          alert("❌ Incorrect password");
-        }
-      } else {
-        alert("❌ User not found");
-      }
+      // if (snapshot.exists()) {
+      //   const user = snapshot.val();
+        // if (user.password === form.password) {
+        //   localStorage.setItem("user", JSON.stringify(user));
+        //   navigate("/account");
+        // } else {
+        //   alert("❌ Incorrect password");
+        // }
+      // } else {
+      //   alert("❌ User not found");
+      // }
     } catch (error) {
       console.error("Login error:", error);
       alert("❌ Login failed: " + error.message);
