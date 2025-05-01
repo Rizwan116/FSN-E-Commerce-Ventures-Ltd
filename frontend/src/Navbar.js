@@ -99,6 +99,12 @@ function Navbar() {
             <NavLink to="/account" className={({ isActive }) => (isActive ? "active" : "")}>
               My Account
             </NavLink>
+            <NavLink to="/order-details" className={({ isActive }) => (isActive ? "active" : "")}>
+              Order Details
+            </NavLink>
+            <NavLink to="/track-order" className={({ isActive }) => (isActive ? "active" : "")}>
+            Track Your Order
+            </NavLink>
             <NavLink
               onClick={handleLogout}
               style={{ marginLeft: '0px', cursor: 'pointer', color: 'red' }}
@@ -107,6 +113,9 @@ function Navbar() {
             </NavLink>
           </>
         )}
+        <NavLink to="/contact" className={({ isActive }) => (isActive ? "active" : "")}>
+        Contact Us
+        </NavLink>
 
         <NavLink to="/adminpanel" className={({ isActive }) => (isActive ? "active" : "")}>
           AdminPanel
