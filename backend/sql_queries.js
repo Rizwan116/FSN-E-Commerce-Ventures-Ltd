@@ -55,10 +55,16 @@ const createUserQuery = `
     RETURNING id;
 `;
 
+const checkUserQuery = `
+    SELECT * FROM users WHERE email = $1 AND password = $2
+    RETURNING id, email, phone, firstName, lastName, profile_image;
+`;
+
 export const sql_queries = {
     createProductTableQuery: createProductTableQuery,
     createOrderTableQuery: createOrderTableQuery,
     createUserTableQuery: createUserTableQuery,
     createAuthTableQuery: createAuthTableQuery,
     createUserQuery: createUserQuery,
+    checkUserQuery: checkUserQuery,
 };

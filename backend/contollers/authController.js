@@ -73,23 +73,35 @@ export const register = async (req, res) => {
 
 
 export const login = async (req, res) => {
-    const { form } = req.body;
-    if (!emailRegex.test(form.email)) {
+    const { email, password } = req.body;
+    if (!emailRegex.test(email)) {
         return res.status(400).json({ success: false, message: '❗ Enter a valid email' });
     }
 
-    if (!passwordRegex.test(form.password)) {
+    if (!passwordRegex.test(password)) {
         return res.status(400).json({ success: false, message: '❗ Password must be at least 6 characters' });
     }
 
     try {
-        await pgClient.connect();
-        await pgClient.query(sql_queries.createProductTableQuery);
-        console.log('Connected to the database');
-        return res.status(200).json({ success: true, message: 'Login successful' }); // Added response for successful login
+        const result = await pgClient.query(sql_queries.checkUserQuery, [email, password]);
+        if (result.rows.length > 0) {
+            const user = result.rows[0];
+            res.status(200).json({
+                success: true,
+                message: 'Login successful',
+                userId: user.id,
+                email: user.email,
+                phone: user.phone,
+                firstName: user.firstName,
+                lastName: user.lastName,
+                profile_image: user.profile_image,
+            });
+        } else {
+            res.status(401).json({ success: false, message: '❌ Invalid email or password' });
+        }
     } catch (err) {
         console.error('Error connecting to the database', err.stack);
-        // return false;
+        return res.status(500).json({ success: false, message: 'Error connecting to the database' });
     }
 }
     
