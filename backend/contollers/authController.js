@@ -4,7 +4,6 @@ import { pgClient } from '../postgres_db.js';
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const passwordRegex = /^.{6,}$/;
 
-
 export const register = async (req, res) => {
     try {
         // Destructure directly from req.body
@@ -77,7 +76,6 @@ export const register = async (req, res) => {
     }
 };
 
-
 export const login = async (req, res) => {
     const { email, password } = req.body;
     if (!emailRegex.test(email)) {
@@ -110,6 +108,7 @@ export const login = async (req, res) => {
         return res.status(500).json({ success: false, message: 'Error connecting to the database' });
     }
 }
+
 export const resetPassword = async (req, res) => {
     const { email, password, newPassword } = req.body;
 
