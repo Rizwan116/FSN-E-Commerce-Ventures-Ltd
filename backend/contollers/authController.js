@@ -40,7 +40,7 @@ export const register = async (req, res) => {
             lastName,
             email,
             password,
-            phone || ''
+            phone || null // Allow phone to be null
         ]);
 
         const user = result.rows[0];
@@ -50,8 +50,8 @@ export const register = async (req, res) => {
             userId: user.id,
             email: user.email,
             phone: user.phone,
-            firstName: user.firstName,
-            lastName: user.lastName,
+            firstName: user.firstname,
+            lastName: user.lastname,
             profile_image: user.profile_image,
         });
 
@@ -96,8 +96,8 @@ export const login = async (req, res) => {
                 userId: user.id,
                 email: user.email,
                 phone: user.phone,
-                firstName: user.firstName,
-                lastName: user.lastName,
+                firstName: user.firstname,
+                lastName: user.lastname,
                 profile_image: user.profile_image,
             });
         } else {
@@ -116,13 +116,17 @@ export const resetPassword = async (req, res) => {
         return res.status(400).json({ success: false, message: '❗ Enter a valid email' });
     }
 
-    if (!passwordRegex.test(newPassword)) {
+    if (!passwordRegex.test(password)) {
         return res.status(400).json({ success: false, message: '❗ Password must be at least 6 characters' });
+    }
+
+    if (!passwordRegex.test(newPassword)) {
+        return res.status(400).json({ success: false, message: '❗ New Password must be at least 6 characters' });
     }
     try {
         // const result = await pgClient.query(sql_queries.checkUserQuery, [email, password]);
         // if (result.rows.length > 0) {
-            const result = await pgClient.query(sql_queries.resetPasswordQuery, [newPassword, email]);
+            const result = await pgClient.query(sql_queries.resetPasswordQuery, [newPassword, email, password]);
             if (result.rows.length > 0) {
                 res.status(200).json({
                     success: true,

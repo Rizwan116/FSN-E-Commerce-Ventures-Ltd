@@ -30,7 +30,7 @@ const createUserTableQuery = `
         lastName VARCHAR(255) NOT NULL,
         email VARCHAR(255) NOT NULL UNIQUE,
         password VARCHAR(255) NOT NULL,
-        phone VARCHAR(15) UNIQUE,
+        phone VARCHAR(15) UNIQUE CHECK (phone IS NULL OR phone != ''),
         profile_image VARCHAR(255),
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
@@ -56,8 +56,9 @@ const createUserQuery = `
 `;
 
 const checkUserQuery = `
-    SELECT * FROM users WHERE email = $1 AND password = $2
-    RETURNING id, email, phone, firstName, lastName, profile_image;
+    SELECT id, email, phone, firstName, lastName, profile_image 
+    FROM users 
+    WHERE email = $1 AND password = $2;
 `;
 
 const resetPasswordQuery = `
