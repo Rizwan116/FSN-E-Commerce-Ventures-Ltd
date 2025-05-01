@@ -52,11 +52,16 @@ const createAuthTableQuery = `
 const createUserQuery = `
     INSERT INTO users (firstName, lastName, email, password, phone)
     VALUES ($1, $2, $3, $4, $5)
-    RETURNING id;
+    RETURNING id, email, phone, firstName, lastName, profile_image;
 `;
 
 const checkUserQuery = `
     SELECT * FROM users WHERE email = $1 AND password = $2
+    RETURNING id, email, phone, firstName, lastName, profile_image;
+`;
+
+const resetPasswordQuery = `
+    UPDATE users SET password = $1 WHERE (email = $2 AND password = $3)
     RETURNING id, email, phone, firstName, lastName, profile_image;
 `;
 
@@ -67,4 +72,5 @@ export const sql_queries = {
     createAuthTableQuery: createAuthTableQuery,
     createUserQuery: createUserQuery,
     checkUserQuery: checkUserQuery,
+    resetPasswordQuery: resetPasswordQuery,
 };
