@@ -1,7 +1,6 @@
 // Login.js
 import React, { useState, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { database, ref, get, child } from './firebase';
 import { AuthContext } from './context/AuthContext';
 
 const Login = () => {
@@ -28,38 +27,37 @@ const Login = () => {
     }
 
     try {
-      const dbRef = ref(database);
-      const snapshot = await get(child(dbRef, 'users'));
+      const response = await fetch('http://localhost:5000/api/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email: form.email,
+          password: form.password,
+        }),
+      });
 
-      if (snapshot.exists()) {
-        const users = snapshot.val();
+      const data = await response.json();
 
-        // Find matching user with email and password
-        const userKey = Object.keys(users).find((key) => {
-          const user = users[key];
-          return user.email === form.email && user.password === form.password;
-        });
+      if (response.status === 200) {
+        // Save user and token securely
+        localStorage.setItem('user', JSON.stringify(data.user));
+        localStorage.setItem('token', data.token);
 
-        if (userKey) {
-          const matchedUser = users[userKey];
+        // Use AuthContext to set logged-in user globally
+        login(data.user);
 
-          // Save full user object including phone to localStorage
-          localStorage.setItem('user', JSON.stringify(matchedUser));
-
-          // Optionally call context login method if you're using AuthContext
-          login(matchedUser);
-
-          alert('✅ Login successful!');
-          navigate('/');
-        } else {
-          alert('❌ Incorrect email or password');
-        }
+        alert('✅ Login successful!');
+        navigate('/');
+      } else if (response.status === 401) {
+        alert('❌ Incorrect email or password');
       } else {
-        alert('❌ No users found in database');
+        alert(`⚠️ Login failed: ${data.message || 'Unknown error'}`);
       }
     } catch (error) {
-      console.error("Login error:", error);
-      alert('⚠️ Login failed. Please try again later.');
+      console.error('Login error:', error);
+      alert('❌ Login failed: ' + error.message);
     }
   };
 
@@ -80,7 +78,8 @@ const Login = () => {
         value={form.password}
       />
       <button onClick={validate}>Login</button>
-      <h6 className='for-pass'
+      <h6
+        className="for-pass"
         onClick={() => navigate('/forget-password')}
         style={{ cursor: 'pointer' }}
       >

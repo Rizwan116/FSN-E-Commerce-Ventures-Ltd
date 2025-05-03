@@ -62,8 +62,7 @@ const checkUserQuery = `
 `;
 
 const resetPasswordQuery = `
-    UPDATE users SET password = $1 WHERE (email = $2 AND password = $3)
-    RETURNING id, email, phone, firstName, lastName, profile_image;
+UPDATE users SET password = $1 WHERE email = $2 RETURNING id;
 `;
 
 export const sql_queries = {

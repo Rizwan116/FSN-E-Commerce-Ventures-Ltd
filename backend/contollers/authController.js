@@ -110,38 +110,36 @@ export const login = async (req, res) => {
 }
 
 export const resetPassword = async (req, res) => {
-    const { email, password, newPassword } = req.body;
+    const { email, newPassword } = req.body;
 
     if (!emailRegex.test(email)) {
         return res.status(400).json({ success: false, message: '❗ Enter a valid email' });
     }
 
-    if (!passwordRegex.test(password)) {
-        return res.status(400).json({ success: false, message: '❗ Password must be at least 6 characters' });
-    }
-
     if (!passwordRegex.test(newPassword)) {
         return res.status(400).json({ success: false, message: '❗ New Password must be at least 6 characters' });
     }
+
     try {
-        // const result = await pgClient.query(sql_queries.checkUserQuery, [email, password]);
-        // if (result.rows.length > 0) {
-            const result = await pgClient.query(sql_queries.resetPasswordQuery, [newPassword, email, password]);
-            if (result.rows.length > 0) {
-                res.status(200).json({
-                    success: true,
-                    message: 'Password reset successfully',
-                    userId: result.rows[0].id,
-                });
-            } else {
-                res.status(400).json({ success: false, message: '❌ User not found' });
-            }
-        // } else {
-        //     res.status(404).json({ success: false, message: '❌ Invalid email or password' });
-        // }
+        // Check if the user exists
+        const userResult = await pgClient.query('SELECT * FROM users WHERE email = $1', [email]);
+
+        if (userResult.rows.length === 0) {
+            return res.status(404).json({ success: false, message: '❌ User not found' });
+        }
+
+        // Update the password
+        const updateResult = await pgClient.query(sql_queries.resetPasswordQuery, [newPassword, email]);
+
+        return res.status(200).json({
+            success: true,
+            message: 'Password reset successfully',
+            userId: userResult.rows[0].id,
+        });
+
     } catch (err) {
-        console.error('Error connecting to the database', err.stack);
-        return res.status(500).json({ success: false, message: 'Error connecting to the database', error: err.message });
+        console.error('Error resetting password:', err.stack);
+        return res.status(500).json({ success: false, message: 'Error resetting password', error: err.message });
     }
 }
 
