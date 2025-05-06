@@ -6,10 +6,8 @@ const passwordRegex = /^.{6,}$/;
 
 export const register = async (req, res) => {
     try {
-        // Destructure directly from req.body
         const { email, password, firstName, lastName, phone } = req.body;
 
-        // Validate required fields
         if (!email || !password) {
             return res.status(400).json({
                 success: false,
@@ -17,7 +15,6 @@ export const register = async (req, res) => {
             });
         }
 
-        // Validate email format
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!emailRegex.test(email)) {
             return res.status(400).json({
@@ -26,15 +23,13 @@ export const register = async (req, res) => {
             });
         }
 
-        // Validate password strength
-        if (password.length < 6) {
+        if (!passwordRegex.test(password)) {
             return res.status(400).json({
                 success: false,
                 message: 'Password must be at least 6 characters long'
             });
         }
 
-        // Create user in database using the SQL query
         const result = await pgClient.query(sql_queries.createUserQuery, [
             firstName,
             lastName,
@@ -58,7 +53,6 @@ export const register = async (req, res) => {
     } catch (error) {
         console.error('Registration error:', error);
         
-        // Check for duplicate email
         if (error.code === '23505') { // PostgreSQL unique violation error code
             return res.status(409).json({
                 success: false,
