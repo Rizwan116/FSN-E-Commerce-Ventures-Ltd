@@ -24,7 +24,7 @@ const Signup = () => {
 
     if (!nameRegex.test(form.firstName)) return alert('❗ Enter a valid first name');
     if (!nameRegex.test(form.lastName)) return alert('❗ Enter a valid last name');
-    if (!phoneRegex.test(form.phone)) return alert('❗ Enter a valid phone number');
+    if (form.phone && !phoneRegex.test(form.phone)) return alert('❗ Enter a valid phone number');
     if (!emailRegex.test(form.email)) return alert('❗ Enter a valid email');
     if (!passwordRegex.test(form.password)) return alert('❗ Password must be at least 6 characters, 1 uppercase letter, and 1 number');
 
@@ -36,7 +36,7 @@ const Signup = () => {
       const newUser = {
         firstName: form.firstName,
         lastName: form.lastName,
-        phone: form.phone,
+        phone: form.phone || "",
         email: form.email,
         password: form.password,
         photo: ""
@@ -50,7 +50,7 @@ const Signup = () => {
 
       const data = await response.json();
 
-      if (response.status === 201) {
+      if (response.status === 200) {
         // Store backend response (not the raw form)
         localStorage.setItem("user", JSON.stringify(data.user));
         localStorage.setItem("token", data.token);

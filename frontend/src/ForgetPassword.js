@@ -28,6 +28,7 @@ const ForgetPassword = () => {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
+          password: form.password,
           email: form.email,
           newPassword: form.newPassword,
         }),
@@ -55,6 +56,13 @@ const ForgetPassword = () => {
         placeholder="Email"
         onChange={handleChange}
         value={form.email}
+      />
+      <input
+        type="password"
+        name="password"
+        placeholder="Current Password"
+        onChange={handleChange}
+        value={form.password}
       />
       <input
         type="password"
