@@ -8,7 +8,7 @@ const createProductTableQuery = `
         category VARCHAR(255) NOT NULL,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        is_available BOOLEAN DEFAULT TRUE    /* removed trailing comma */
+        is_available BOOLEAN DEFAULT TRUE
     );
 `;
 
@@ -66,6 +66,18 @@ const resetPasswordQuery = `
     RETURNING id, email, phone, firstName, lastName, profile_image;
 `;
 
+const getProductsQuery = `
+    SELECT id, name, description, price, image, category, created_at, updated_at, is_available 
+    FROM products 
+    WHERE is_available = TRUE;
+`;
+
+const getProductByIdQuery = `
+    SELECT id, name, description, price, image, category, created_at, updated_at, is_available
+    FROM products
+    WHERE id = $1;
+`;
+
 export const sql_queries = {
     createProductTableQuery: createProductTableQuery,
     createOrderTableQuery: createOrderTableQuery,
@@ -74,4 +86,6 @@ export const sql_queries = {
     createUserQuery: createUserQuery,
     checkUserQuery: checkUserQuery,
     resetPasswordQuery: resetPasswordQuery,
+    getProductsQuery: getProductsQuery,
+    getProductByIdQuery: getProductByIdQuery,
 };
