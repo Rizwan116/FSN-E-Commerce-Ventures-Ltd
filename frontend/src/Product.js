@@ -1,64 +1,6 @@
-// // Product.js
-
-// import React, { useEffect, useState } from "react";
-// import { useParams, useNavigate } from "react-router-dom";
-// import { database, ref, get } from "./firebase";
-
-// function Product() {
-//   const { productId } = useParams();
-//   const navigate = useNavigate();
-//   const [product, setProduct] = useState(null);
-//   const [loading, setLoading] = useState(true);
-
-//   useEffect(() => {
-//     const fetchProduct = async () => {
-//       try {
-//         const productRef = ref(database, `products/${productId}`);
-//         const snapshot = await get(productRef);
-
-//         if (snapshot.exists()) {
-//           setProduct(snapshot.val());
-//         } else {
-//           const altRef = ref(database, `product/${productId}`);
-//           const altSnapshot = await get(altRef);
-
-//           if (altSnapshot.exists()) {
-//             setProduct(altSnapshot.val());
-//           } else {
-//             console.log("Product not found.");
-//           }
-//         }
-//       } catch (error) {
-//         console.error("Error fetching product:", error);
-//       } finally {
-//         setLoading(false);
-//       }
-//     };
-
-//     fetchProduct();
-//   }, [productId]);
-
-//   if (loading) return <div>Loading product...</div>;
-//   if (!product) return <div>Product not found.</div>;
-
-//   return (
-//     <div className="product-detail-page">
-//       <button onClick={() => navigate(-1)} style={{ marginBottom: "20px" }}>
-//         ← Back
-//       </button>
-
-//       <h1>{product.name}</h1>
-//       <img src={product.image} alt={product.name} width="300" />
-//       <h4><strong>Price:</strong> ₹{product.price}</h4>
-//       <h4><strong>Description:</strong> {product.description || "No description provided."}</h4>
-//       <h4><strong>Stock:</strong> {product.stock}</h4>
-//     </div>
-//   );
-// }
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { ref, get, push, set, onValue } from "firebase/database";
-import { database } from "./firebase";
+import axios from "axios";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation } from "swiper/modules";
 import "swiper/css";
@@ -72,7 +14,7 @@ function Product() {
   const [zoomed, setZoomed] = useState(false);
   const [quantity, setQuantity] = useState(1);
   const [reviews, setReviews] = useState([]);
-  const [user, setUser] = useState(null); // Simulated user state (auth not included here)
+  const [user, setUser] = useState(null); // Simulated user state (auth not handled here)
 
   const dummyImages = [
     "https://via.placeholder.com/400x300?text=Image+1",
@@ -80,7 +22,6 @@ function Product() {
     "https://via.placeholder.com/400x300?text=Image+3",
   ];
 
-  // Dummy review data if no reviews exist
   const dummyReviews = [
     {
       username: "John Doe",
@@ -103,13 +44,9 @@ function Product() {
   useEffect(() => {
     const fetchProduct = async () => {
       try {
-        const productRef = ref(database, `products/${productId}`);
-        const snapshot = await get(productRef);
-
-        if (snapshot.exists()) {
-          setProduct(snapshot.val());
-          setQuantity(1); // Reset quantity to 1 when product is loaded
-        }
+        const res = await axios.get(`/api/products/${productId}`);
+        setProduct(res.data.product); // Assuming res.data contains a product object
+        setQuantity(1);
       } catch (error) {
         console.error("Error fetching product:", error);
       } finally {
@@ -121,24 +58,27 @@ function Product() {
   }, [productId]);
 
   useEffect(() => {
-    const reviewsRef = ref(database, `reviews/${productId}`);
-    onValue(reviewsRef, (snapshot) => {
-      const data = snapshot.val() || {};
-      const loadedReviews = Object.values(data);
-
-      // If no reviews are found in the DB, use dummy data
-      if (loadedReviews.length === 0) {
+    const fetchReviews = async () => {
+      try {
+        const res = await axios.get(`/api/products/${productId}/reviews`);
+        setReviews(res.data.reviews.length > 0 ? res.data.reviews : dummyReviews);
+      } catch (error) {
+        console.error("Error fetching reviews:", error);
         setReviews(dummyReviews);
-      } else {
-        setReviews(loadedReviews);
       }
-    });
+    };
+
+    fetchReviews();
   }, [productId]);
 
-  const handleReviewSubmit = (review) => {
+  const handleReviewSubmit = async (review) => {
     if (!user) return navigate("/signup");
-    const newReviewRef = push(ref(database, `reviews/${productId}`));
-    set(newReviewRef, review);
+    try {
+      await axios.post(`/api/products/${productId}/reviews`, review);
+      alert("Review submitted!");
+    } catch (error) {
+      console.error("Failed to submit review:", error);
+    }
   };
 
   const handleAddToCart = () => {
@@ -147,7 +87,6 @@ function Product() {
       return;
     }
 
-    // Simulate adding the product to the cart
     const cartItem = {
       productId: product.id,
       name: product.name,
@@ -155,11 +94,7 @@ function Product() {
       quantity,
     };
 
-    // Push the item to the cart (firebase logic or localStorage could be used here)
     console.log("Item added to cart:", cartItem);
-
-    // Do not update stock here, only update it at purchase time
-
     alert(`Added ${quantity} ${product.name} to your cart!`);
   };
 
@@ -231,12 +166,10 @@ function Product() {
         </button>
       </div>
 
-      {/* Product Details */}
       <h4><strong>Price:</strong> ₹{product.price}</h4>
       <h4><strong>Description:</strong> {product.description || "No description provided."}</h4>
       <h4><strong>Stock:</strong> {product.stock}</h4>
 
-      {/* Quantity & Cart */}
       <div style={{ margin: "10px 0" }}>
         <button onClick={handleDecreaseQuantity} disabled={quantity <= 1}>-</button>
         <span style={{ margin: "0 10px" }}>{quantity}</span>
@@ -244,12 +177,10 @@ function Product() {
         <button onClick={handleAddToCart} style={{ marginLeft: "10px" }}>Add to Cart</button>
       </div>
 
-      {/* Ingredients Popup */}
       {product.ingredients && (
         <button onClick={() => alert(product.ingredients.join(", "))}>View Ingredients</button>
       )}
 
-      {/* How to Use */}
       {product.howToUse && (
         <div>
           <h3>How to Use</h3>
@@ -257,14 +188,12 @@ function Product() {
         </div>
       )}
 
-      {/* Reviews Section */}
       <div>
         <h3>Reviews</h3>
         {reviews.map((r, idx) => (
           <div key={idx} style={{ border: "1px solid #ddd", padding: "10px", marginBottom: "10px" }}>
             <strong>{r.username}</strong> <strong>({r.category})</strong> - <strong>{r.date}</strong>
             <div>{"★".repeat(r.stars)}{'☆'.repeat(5 - r.stars)}</div>
-            {/* {r.image && <img src={r.image} alt="Review" style={{ maxWidth: "100px" }} />} */}
             <h5>{r.comment}</h5>
           </div>
         ))}
@@ -275,5 +204,3 @@ function Product() {
 }
 
 export default Product;
-
-

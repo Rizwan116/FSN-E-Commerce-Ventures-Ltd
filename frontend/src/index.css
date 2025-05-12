@@ -1139,6 +1139,9 @@ h2 {
   cursor: not-allowed;
 }
 
+.product-detail-page {
+  margin-top: 100px;
+}
 
   /* best seller  */
   .product-collection-section {

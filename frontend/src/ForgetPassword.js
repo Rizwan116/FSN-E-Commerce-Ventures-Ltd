@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { database, ref, get, child, set } from './firebase'; // ✅ Firebase functions
 
 const ForgetPassword = () => {
   const [form, setForm] = useState({ email: '', newPassword: '' });
@@ -12,33 +11,34 @@ const ForgetPassword = () => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     const passwordRegex = /^(?=.*[A-Z])(?=.*\d).{6,}$/;
 
-    if (!emailRegex.test(form.email)) return alert('Enter a valid email');
-    if (!passwordRegex.test(form.newPassword))
-      return alert('Password must be 6+ characters, include 1 uppercase letter and 1 number');
+    if (!emailRegex.test(form.email)) {
+      alert('❗ Enter a valid email');
+      return;
+    }
+
+    if (!passwordRegex.test(form.newPassword)) {
+      alert('❗ Password must be at least 6 characters, contain 1 uppercase letter, and 1 number');
+      return;
+    }
 
     try {
-      const dbRef = ref(database);
-      const snapshot = await get(child(dbRef, 'users'));
+      const response = await fetch('http://localhost:5000/api/auth/resetpassword', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email: form.email,
+          newPassword: form.newPassword,
+        }),
+      });
 
-      if (snapshot.exists()) {
-        const users = snapshot.val();
-        const userKey = Object.keys(users).find(
-          (key) => users[key].email === form.email
-        );
+      const result = await response.json();
 
-        if (userKey) {
-          const updatedUser = {
-            ...users[userKey],
-            password: form.newPassword,
-          };
-
-          await set(ref(database, `users/${userKey}`), updatedUser);
-          alert('✅ Password reset successfully!');
-        } else {
-          alert('❌ User not found!');
-        }
+      if (response.status === 200) {
+        alert('✅ Password reset successfully!');
       } else {
-        alert('❌ No users found in the database!');
+        alert(`❌ ${result.message || 'Password reset failed'}`);
       }
     } catch (error) {
       console.error(error);
@@ -49,8 +49,20 @@ const ForgetPassword = () => {
   return (
     <div className="auth-form">
       <h2>Reset Password</h2>
-      <input name="email" placeholder="Email" onChange={handleChange} value={form.email} />
-      <input type="password" name="newPassword" placeholder="New Password" onChange={handleChange} value={form.newPassword} />
+      <input
+        type="email"
+        name="email"
+        placeholder="Email"
+        onChange={handleChange}
+        value={form.email}
+      />
+      <input
+        type="password"
+        name="newPassword"
+        placeholder="New Password"
+        onChange={handleChange}
+        value={form.newPassword}
+      />
       <button onClick={validateAndUpdate}>Reset</button>
     </div>
   );
