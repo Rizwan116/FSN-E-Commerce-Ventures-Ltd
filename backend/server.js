@@ -11,6 +11,8 @@ import { sql_queries } from './sql_queries.js';
 import { pgClient } from './postgres_db.js';
 import productRoutes from './routes/productRoutes.js';
 import authRoutes from './routes/authRoutes.js';
+import userRoutes from './routes/userRoutes.js';
+import orderRoutes from './routes/orderRoutes.js';
 import e from 'express';
 
 dotenv.config({ path: '.env.local' });
@@ -38,6 +40,8 @@ app.use((req, res, next) => {
 // API routes first
 app.use('/api/products', productRoutes);
 app.use('/api/auth', authRoutes);
+app.use('/api/users', userRoutes);
+app.use('/api/orders', orderRoutes);
 
 // Static files
 app.use(express.static(path.join(__dirname, '..', 'frontend', 'build')));
