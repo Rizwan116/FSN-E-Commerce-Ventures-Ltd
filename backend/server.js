@@ -43,6 +43,8 @@ app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/orders', orderRoutes);
 
+
+
 // Static files
 app.use(express.static(path.join(__dirname, '..', 'frontend', 'build')));
 

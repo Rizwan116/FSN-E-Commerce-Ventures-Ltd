@@ -4,6 +4,9 @@ import { pgClient } from '../postgres_db.js';
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const passwordRegex = /^.{6,}$/;
 
+import { OAuth2Client } from 'google-auth-library';
+const client = new OAuth2Client("1096684727945-n3vqh5t3j8hg3dppt4bdjlph6jaq3v8f.apps.googleusercontent.com");
+
 export const register = async (req, res) => {
     try {
         const { email, password, firstName, lastName, phone } = req.body;
@@ -146,3 +149,46 @@ export const logout = async (req, res) => {
         message: `Logout successfully`,
     });
 }
+
+
+export const googleLogin = async (req, res) => {
+  const { email, firstName, lastName, profileImage } = req.body;
+
+  if (!email || !firstName || !lastName) {
+    return res.status(400).json({ success: false, message: 'Missing Google user data' });
+  }
+
+  try {
+    // Check if the user already exists
+    const checkResult = await pgClient.query(sql_queries.getUserByEmailQuery, [email]);
+
+    let user;
+    if (checkResult.rows.length > 0) {
+      user = checkResult.rows[0];
+    } else {
+      // Insert new user into DB if not exists
+     const insertResult = await pgClient.query(sql_queries.createGoogleUserQuery, [firstName, lastName, email, profileImage]);
+      user = insertResult.rows[0];
+    }
+
+    // Optionally generate a dummy token
+    const token = `google-token-${user.id}`;
+
+    res.status(200).json({
+      success: true,
+      message: 'Google login successful',
+      user: {
+        id: user.id,
+        email: user.email,
+        firstName: user.firstname,
+        lastName: user.lastname,
+        phone: user.phone,
+        profile_image: profileImage || user.profile_image,
+      },
+      token
+    });
+  } catch (err) {
+    console.error('Google login error:', err);
+    res.status(500).json({ success: false, message: 'Internal server error' });
+  }
+};

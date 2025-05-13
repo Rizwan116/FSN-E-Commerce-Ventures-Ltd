@@ -1,6 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import { database } from './firebase';
-import { ref as dbRef, onValue } from 'firebase/database';
 import { useDispatch, useSelector } from 'react-redux';
 import { addToCart } from './redux/cartSlice';
 import { toast, ToastContainer } from 'react-toastify';
@@ -14,23 +12,34 @@ function Shop() {
   const [selectedCategory, setSelectedCategory] = useState('All');
 
   const dispatch = useDispatch();
-  const cartItems = useSelector((state) => state.cart.items); // ✅ get items from Redux
+  const cartItems = useSelector((state) => state.cart.items);
 
-  useEffect(() => {
-    const productsRef = dbRef(database, 'products');
-    onValue(productsRef, (snapshot) => {
-      const data = snapshot.val();
-      if (data) {
-        const productList = Object.entries(data).map(([id, item]) => ({
-          id,
-          ...item,
-        }));
-        setProducts(productList);
-        setFiltered(productList);
-        extractCategories(productList);
+useEffect(() => {
+  fetch('http://localhost:5000/api/products')
+    .then((res) => res.json())
+    .then((data) => {
+      console.log("Fetched products:", data);
+
+      if (Array.isArray(data)) {
+        setProducts(data);
+        setFiltered(data);
+        extractCategories(data);
+      } else if (Array.isArray(data.products)) {
+        setProducts(data.products);
+        setFiltered(data.products);
+        extractCategories(data.products);
+      } else {
+        console.error("Unexpected data format", data);
+        setProducts([]);
+        setFiltered([]);
       }
+    })
+    .catch((err) => {
+      console.error('Failed to load products:', err);
+      setProducts([]);
+      setFiltered([]);
     });
-  }, []);
+}, []);
 
   const extractCategories = (data) => {
     const categories = ['All', ...new Set(data.map((item) => item.category || 'Uncategorized'))];
@@ -52,7 +61,6 @@ function Shop() {
 
   const handleSort = (option) => {
     let sorted = [...filtered];
-
     switch (option) {
       case 'priceLowHigh':
         sorted.sort((a, b) => a.price - b.price);
@@ -75,7 +83,6 @@ function Shop() {
       default:
         break;
     }
-
     setFiltered(sorted);
     setSortOption(option);
   };
@@ -90,11 +97,12 @@ function Shop() {
     }
   };
 
+  
+
   return (
     <div className="shop-page">
       <h2>🛍️ Welcome to the Shop</h2>
 
-      {/* Filter Controls */}
       <div className="filter-controls">
         <select value={sortOption} onChange={(e) => handleSort(e.target.value)}>
           <option value="">Sort By</option>
@@ -113,7 +121,6 @@ function Shop() {
         </select>
       </div>
 
-      {/* Product List */}
       <div className="product-list">
         {filtered.map((product) => {
           const cartItem = cartItems.find((item) => item.id === product.id);
@@ -127,9 +134,7 @@ function Shop() {
               <h3 className="product-rating">⭐ {product.ratings || 4.0}</h3>
               <h3 className="product-price">₹ {product.price}</h3>
               {outOfStock ? (
-                <button className="add-to-cart-btn" disabled>
-                  ❌ Not Available
-                </button>
+                <button className="add-to-cart-btn" disabled>❌ Not Available</button>
               ) : (
                 <button className="add-to-cart-btn" onClick={() => handleAddToCart(product)}>
                   Add to Cart 🛒
@@ -140,7 +145,6 @@ function Shop() {
         })}
       </div>
 
-      {/* Toast Message Container */}
       <ToastContainer position="top-right" autoClose={2000} />
     </div>
   );

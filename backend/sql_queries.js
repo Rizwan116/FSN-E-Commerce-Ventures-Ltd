@@ -33,7 +33,7 @@ const createUserTableQuery = `
         firstName VARCHAR(255) NOT NULL,
         lastName VARCHAR(255) NOT NULL,
         email VARCHAR(255) NOT NULL UNIQUE,
-        password VARCHAR(255) NOT NULL,
+        password VARCHAR(255),
         phone VARCHAR(15) UNIQUE CHECK (phone IS NULL OR phone != ''),
         profile_image VARCHAR(255),
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -110,19 +110,42 @@ const deleteProductQuery = `
     SET is_deleted = TRUE AND updated_at = CURRENT_TIMESTAMP AND deleted_at = CURRENT_TIMESTAMP WHERE id = $1
     RETURNING id, name, description, price, image, category, reviews_count, reviews_rating, created_at, updated_at, is_available, is_deleted, deleted_at;
 `;
+
+// ✅ Google Login Helper Query
+const getUserByEmailQuery = `
+  SELECT * FROM users WHERE email = $1;
+`;
+
+const createGoogleUserQuery = `
+   INSERT INTO users (firstname, lastname, email, profile_image)
+   VALUES ($1, $2, $3, $4)
+   RETURNING *;
+`;
+
+const findOrCreateGoogleUserQuery = `
+   INSERT INTO users (firstname, lastname, email, profile_image)
+   VALUES ($1, $2, $3, $4)
+   ON CONFLICT (email)
+   DO UPDATE SET profile_image = EXCLUDED.profile_image
+   RETURNING *;
+`;
+
 export const sql_queries = {
-    createProductTableQuery: createProductTableQuery,
-    createOrderTableQuery: createOrderTableQuery,
-    createUserTableQuery: createUserTableQuery,
-    createAuthTableQuery: createAuthTableQuery,
-    createUserQuery: createUserQuery,
-    checkUserQuery: checkUserQuery,
-    resetPasswordQuery: resetPasswordQuery,
-    getProductsQuery: getProductsQuery,
-    getProductByIdQuery: getProductByIdQuery,
-    getOrdersQuery: getOrdersQuery,
-    getUsersQuery: getUsersQuery,
-    createProductQuery: createProductQuery,
-    updateProductQuery: updateProductQuery,
-    deleteProductQuery: deleteProductQuery,
+    createProductTableQuery,
+    createOrderTableQuery,
+    createUserTableQuery,
+    createAuthTableQuery,
+    createUserQuery,
+    checkUserQuery,
+    resetPasswordQuery,
+    getProductsQuery,
+    getProductByIdQuery,
+    getOrdersQuery,
+    getUsersQuery,
+    createProductQuery,
+    updateProductQuery,
+    deleteProductQuery,
+    findOrCreateGoogleUserQuery, // 👈 added to exports
+    createGoogleUserQuery,
+    getUserByEmailQuery
 };
