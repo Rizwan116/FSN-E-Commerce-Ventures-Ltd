@@ -22,12 +22,12 @@ const pool = new Pool({
 });
 
 // Check connection on startup
-pool.connect((err) => {
-  if (err) {
-    console.error('Error connecting to the database:', err.stack);
-  } else {
-    console.log('Connected to the database');
-  }
-});
+// pool.connect((err) => {
+//   if (err) {
+//     console.error('Error connecting to the database:', err.stack);
+//   } else {
+//     console.log('Connected to the database');
+//   }
+// });
 
 export const pgClient = pool;

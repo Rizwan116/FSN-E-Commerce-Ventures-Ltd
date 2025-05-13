@@ -154,7 +154,7 @@ export const logout = async (req, res) => {
 export const googleLogin = async (req, res) => {
   const { email, firstName, lastName, profileImage } = req.body;
 
-  if (!email || !firstName || !lastName) {
+  if (!email || !firstName) {
     return res.status(400).json({ success: false, message: 'Missing Google user data' });
   }
 
@@ -181,7 +181,7 @@ export const googleLogin = async (req, res) => {
         id: user.id,
         email: user.email,
         firstName: user.firstname,
-        lastName: user.lastname,
+        lastName: user.lastname || "",
         phone: user.phone,
         profile_image: profileImage || user.profile_image,
       },
