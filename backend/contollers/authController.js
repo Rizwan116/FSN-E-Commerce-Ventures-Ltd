@@ -181,7 +181,7 @@ export const googleLogin = async (req, res) => {
         id: user.id,
         email: user.email,
         firstName: user.firstname,
-        lastName: user.lastname || "",
+        lastName: lastName || user.lastname || "",
         phone: user.phone,
         profile_image: profileImage || user.profile_image,
       },

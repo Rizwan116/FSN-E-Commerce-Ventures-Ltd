@@ -90,7 +90,6 @@ const handleAddToCart = useCallback(
   const renderProductCard = useCallback(
     (product) => {
       const quantityInCart = getQuantityInCart(product.id);
-      const stock = typeof product.stock === "number" ? product.stock : 0;
       const isUnavailable = !product.is_available;
       const isAlreadyInCart = quantityInCart > 0;
       const isLoading = isUpdatingStock[product.id]; 

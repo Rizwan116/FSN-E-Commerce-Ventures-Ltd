@@ -67,6 +67,7 @@ async function connectDB() {
         await pgClient.query(sql_queries.createOrderTableQuery);
         await pgClient.query(sql_queries.createUserTableQuery);
         await pgClient.query(sql_queries.createAuthTableQuery);
+        await pgClient.query(sql_queries.createReviewTableQuery);
 
         console.log('Connected to the database');
         return true;

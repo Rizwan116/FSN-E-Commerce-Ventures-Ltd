@@ -142,3 +142,200 @@ export const deleteProduct = async (req, res) => {
     });
   }
 }
+
+export const getProductReviews = async (req, res) => {
+  const { id } = req.params;
+  try {
+    const result = await pgClient.query(sql_queries.getProductReviewsQuery, [id]);
+    const reviews = result.rows;
+
+    if (!reviews) {
+      return res.status(404).json({
+        success: false,
+        message: `No reviews found for product with id ${id}`,
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: `Reviews for product with id ${id} fetched successfully`,
+      reviews,
+    });
+  } catch (error) {
+    console.error('Error fetching product reviews:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error fetching product reviews',
+      error: error.message,
+    });
+  }
+}
+
+export const createProductReview = async (req, res) => {
+  const { id } = req.params;
+  const { user_id, rating, comment, order_id, product_id } = req.body;
+
+  if (!user_id || !rating || !comment || !order_id || !product_id) {
+    return res.status(400).json({
+      success: false,
+      message: 'All fields are required',
+    });
+  }
+  try {
+
+    // Check if the user has already reviewed the product
+    const existingReview = await pgClient.query(sql_queries.getReviewByProductIdAndUserIdQuery, [product_id, user_id]);
+    if (existingReview.rows.length > 0) {
+      return res.status(400).json({
+        success: false,
+        message: 'User has already reviewed this product',
+      });
+    }
+    // Check if the user has purchased the product
+    const purchasedProduct = await pgClient.query(sql_queries.getOrderByUserIdAndProductIdQuery, [user_id, product_id]);
+    if (purchasedProduct.rows.length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: 'User has not purchased this product',
+      });
+    }
+
+    const result = await pgClient.query(sql_queries.createProductReviewQuery, [product_id, user_id, rating, comment, order_id]);
+    const newReview = result.rows[0];
+
+    res.status(201).json({
+      success: true,
+      message: 'Product review created successfully',
+      review: newReview,
+    });
+  } catch (error) {
+    console.error('Error creating product review:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error creating product review',
+      error: error.message,
+    });
+  }
+}
+
+export const updateProductReview = async (req, res) => {
+  const { id } = req.params;
+  const { rating, comment } = req.body;
+
+  if (!rating || !comment) {
+    return res.status(400).json({
+      success: false,
+      message: 'All fields are required',
+    });
+  }
+
+  try {
+    const result = await pgClient.query(sql_queries.updateProductReviewQuery, [rating, comment, id]);
+    const updatedReview = result.rows[0];
+
+    if (!updatedReview) {
+      return res.status(404).json({
+        success: false,
+        message: `Review with id ${id} not found`,
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: 'Product review updated successfully',
+      review: updatedReview,
+    });
+  } catch (error) {
+    console.error('Error updating product review:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error updating product review',
+      error: error.message,
+    });
+  }
+}
+
+export const deleteProductReview = async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const result = await pgClient.query(sql_queries.deleteProductReviewQuery, [id]);
+    const deletedReview = result.rows[0];
+
+    if (!deletedReview) {
+      return res.status(404).json({
+        success: false,
+        message: `Review with id ${id} not found`,
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: 'Product review deleted successfully',
+      review: deletedReview,
+    });
+  } catch (error) {
+    console.error('Error deleting product review:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error deleting product review',
+      error: error.message,
+    });
+  }
+}
+
+// export const getProductByCategory = async (req, res) => {
+//   const { category } = req.params;
+//   try {
+//     const result = await pgClient.query(sql_queries.getProductByCategoryQuery, [category]);
+//     const products = result.rows;
+
+//     if (!products) {
+//       return res.status(404).json({
+//         success: false,
+//         message: `No products found for category ${category}`,
+//       });
+//     }
+
+//     res.status(200).json({
+//       success: true,
+//       message: `Products for category ${category} fetched successfully`,
+//       products,
+//     });
+//   } catch (error) {
+//     console.error('Error fetching products by category:', error);
+//     res.status(500).json({
+//       success: false,
+//       message: 'Error fetching products by category',
+//       error: error.message,
+//     });
+//   }
+// }
+
+export const getReviewById = async (req, res) => {
+  const { id } = req.params;
+  try {
+    const result = await pgClient.query(sql_queries.getReviewByIdQuery, [id]);
+    const review = result.rows[0];
+
+    if (!review) {
+      return res.status(404).json({
+        success: false,
+        message: `Review with id ${id} not found`,
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: `Review with id ${id} fetched successfully`,
+      review,
+    });
+  } catch (error) {
+    console.error('Error fetching review:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error fetching review',
+      error: error.message,
+    });
+  }
+}
