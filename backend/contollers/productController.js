@@ -49,7 +49,7 @@ export const getProductById = async (req, res) => {
 }
 
 export const createProduct = async (req, res) => {
-  const { name, description, price, image_url, category, is_available } = req.body;
+  const { name, description, price, image_url, category, is_available, product_urls } = req.body;
 
   if (!name || !description || !price || !image_url || !category || !is_available) {
     return res.status(400).json({
@@ -58,8 +58,12 @@ export const createProduct = async (req, res) => {
     });
   }
 
+  if (!product_urls || product_urls.length === 0) {
+    product_urls = null;
+  }
+
   try {
-    const result = await pgClient.query(sql_queries.createProductQuery, [name, description, price, image_url, category, is_available]);
+    const result = await pgClient.query(sql_queries.createProductQuery, [name, description, price, image_url, category, is_available, product_urls]);
     const newProduct = result.rows[0];
 
     res.status(201).json({
@@ -79,7 +83,7 @@ export const createProduct = async (req, res) => {
 
 export const updateProduct = async (req, res) => {
   const { id } = req.params;
-  const { name, description, price, image_url, category, is_available } = req.body;
+  const { name, description, price, image_url, category, is_available, product_urls } = req.body;
 
   if (!name || !description || !price || !image_url || !category || !is_available) {
     return res.status(400).json({
@@ -88,8 +92,12 @@ export const updateProduct = async (req, res) => {
     });
   }
 
+  if (!product_urls || product_urls.length === 0) {
+    product_urls = null;
+  }
+
   try {
-    const result = await pgClient.query(sql_queries.updateProductQuery, [name, description, price, image_url, category, is_available, id]);
+    const result = await pgClient.query(sql_queries.updateProductQuery, [name, description, price, image_url, category, is_available, product_urls, id]);
     const updatedProduct = result.rows[0];
 
     if (!updatedProduct) {

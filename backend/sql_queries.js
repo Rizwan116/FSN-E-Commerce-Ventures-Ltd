@@ -5,6 +5,7 @@ const createProductTableQuery = `
         description TEXT NOT NULL,
         price DECIMAL(10, 2) NOT NULL,
         image VARCHAR(255) NOT NULL,
+        product_urls TEXT[] DEFAULT '{}',
         category VARCHAR(255) NOT NULL,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -86,14 +87,14 @@ const resetPasswordQuery = `
 `;
 
 const getProductsQuery = `
-    SELECT id, name, description, price, image, category, reviews_count, reviews_rating, created_at, updated_at, is_available
+    SELECT id, name, description, price, image, category, reviews_count, reviews_rating, created_at, updated_at, is_available, product_urls
     FROM products
     WHERE is_available = TRUE
     AND is_deleted = FALSE
 `;
 
 const getProductByIdQuery = `
-    SELECT id, name, description, price, image, category, reviews_count, reviews_rating, created_at, updated_at, is_available
+    SELECT id, name, description, price, image, category, reviews_count, reviews_rating, created_at, updated_at, is_available, product_urls
     FROM products
     WHERE id = $1
     AND is_deleted = FALSE
@@ -110,20 +111,20 @@ const getUsersQuery = `
 `;
 
 const createProductQuery = `
-    INSERT INTO products (name, description, price, image, category, is_available)
-    VALUES ($1, $2, $3, $4, $5, $6)
+    INSERT INTO products (name, description, price, image, category, is_available, product_urls)
+    VALUES ($1, $2, $3, $4, $5, $6, $7)
     RETURNING id, name, description, price, image, category, is_available, created_at, updated_at;
 `;
 
 const updateProductQuery = `
-    UPDATE products SET name = $1, description = $2, price = $3, image = $4, category = $5, is_available = $6
-    WHERE id = $7
+    UPDATE products SET name = $1, description = $2, price = $3, image = $4, category = $5, is_available = $6, product_urls = $7
+    WHERE id = $8
     RETURNING id, name, description, price, image, category, reviews_count, reviews_rating, created_at, updated_at, is_available, is_deleted, deleted_at;
 `;
 
 const deleteProductQuery = `
     SET is_deleted = TRUE AND updated_at = CURRENT_TIMESTAMP AND deleted_at = CURRENT_TIMESTAMP WHERE id = $1
-    RETURNING id, name, description, price, image, category, reviews_count, reviews_rating, created_at, updated_at, is_available, is_deleted, deleted_at;
+    RETURNING id, name, description, price, image, category, reviews_count, reviews_rating, created_at, updated_at, is_available, is_deleted, deleted_at, product_urls;
 `;
 
 const getUserByEmailQuery = `
