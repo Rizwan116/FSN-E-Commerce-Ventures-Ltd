@@ -51,13 +51,14 @@ const AppRoutes = () => {
       <ScrollToTop />
       <Announcement />
       <HeaderBar />
-      <ToastContainer />
+      <ToastContainer/>
       <div className="content">
         <Routes location={location} key={location.pathname}>
           <Route path="/" element={<Home />} />
           <Route path="/shop" element={<Shop />} />
           <Route path="/aboutUs" element={<AboutUs />} />
           <Route path="/product/:productId" element={<Product />} />
+          {/* <Route path="/product/:id" element={<Product />} /> */}
           {/* <Route path="/about" element={<About />} /> */}
           <Route path="/order-success" element={<OrderSuccess />} />
           <Route path="/OurStory" element={<OurStory />} />

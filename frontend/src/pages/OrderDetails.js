@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
-import { database } from '../firebase';
-import { ref, get } from 'firebase/database';
 import html2pdf from 'html2pdf.js';
+import axios from 'axios'; // Added for PostgreSQL API calls
 
 const OrderDetails = () => {
   const location = useLocation();
@@ -28,12 +27,10 @@ const OrderDetails = () => {
       if (!orderId) return setLoading(false);
 
       try {
-        const orderRef = ref(database, `orders/${orderId}`);
-        const snapshot = await get(orderRef);
-        if (snapshot.exists()) {
-          const orderData = snapshot.val();
-          setOrder(orderData);
-          localStorage.setItem('lastOrder', JSON.stringify(orderData));
+        const response = await axios.get(`http://localhost:5000/orders/${orderId}`);
+        if (response.data) {
+          setOrder(response.data);
+          localStorage.setItem('lastOrder', JSON.stringify(response.data));
         } else {
           const cached = localStorage.getItem('lastOrder');
           setOrder(cached ? JSON.parse(cached) : null);
@@ -51,21 +48,10 @@ const OrderDetails = () => {
   useEffect(() => {
     const fetchAllOrders = async () => {
       try {
-        const ordersRef = ref(database, 'orders');
-        const snapshot = await get(ordersRef);
-
-        if (snapshot.exists()) {
-          const data = snapshot.val();
-          const allOrdersArray = Object.entries(data).map(([key, value]) => ({
-            ...value,
-            id: key,
-          }));
-
-          const userOrders = allOrdersArray.filter(
-            (o) => o?.email?.toLowerCase?.() === currentUserEmail
-          );
-
-          setAllOrders(userOrders.reverse());
+        const response = await axios.get(`http://localhost:5000/orders?email=${currentUserEmail}`);
+        if (Array.isArray(response.data)) {
+          const reversed = [...response.data].reverse();
+          setAllOrders(reversed);
         }
       } catch (error) {
         console.error('Error fetching all orders:', error);
@@ -76,9 +62,7 @@ const OrderDetails = () => {
     if (currentUserEmail) fetchAllOrders();
   }, [currentUserEmail]);
 
-  const handlePrint = () => {
-    window.print();
-  };
+  const handlePrint = () => window.print();
 
   const handleDownloadPDF = () => {
     const element = document.getElementById('order-summary');
@@ -93,15 +77,13 @@ const OrderDetails = () => {
       delivered: 'success',
       cancelled: 'danger',
     };
-
     const label = status || 'Unknown';
     const variant = variants[normalized] || 'secondary';
     return <span className={`badge bg-${variant}`}>{label}</span>;
   };
 
   if (loading) return <h4>Loading order details...</h4>;
-  if (!order || Object.keys(order).length === 0)
-    return <h4>No order found.</h4>;
+  if (!order || Object.keys(order).length === 0) return <h4>No order found.</h4>;
 
   const {
     firstName,

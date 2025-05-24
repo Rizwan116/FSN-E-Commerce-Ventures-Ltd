@@ -1,6 +1,4 @@
 import React, { useState } from 'react';
-import { database } from './firebase';
-import { ref, push, set, update, get } from 'firebase/database'; // Added 'get' here
 import { useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { clearCart } from './redux/cartSlice';
@@ -58,71 +56,42 @@ const Billing = () => {
     return Object.keys(newErrors).length === 0;
   };
 
-  const updateProductStock = async (productId, quantity) => {
-    const productRef = ref(database, `products/${productId}`);
-    try {
-      // Get current stock
-      const snapshot = await get(productRef);
-      if (snapshot.exists()) {
-        const productData = snapshot.val();
-        const currentStock = productData.stock || 0;
-        const newStock = Math.max(currentStock - quantity, 0);
-        
-        // Update stock in Firebase
-        await update(productRef, { stock: newStock });
-        return true;
-      }
-      return false;
-    } catch (error) {
-      console.error("Error updating product stock:", error);
-      return false;
-    }
-  };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!validateForm() || isSubmitting) return;
 
     setIsSubmitting(true);
-    
+
     try {
-      // Create order data
       const orderData = {
         ...form,
-        cart: JSON.parse(JSON.stringify(cart)),
+        cart: cart.items,
         totalAmount: cart.items.reduce((sum, item) => sum + (item.price * item.quantity), 0),
         timestamp: new Date().toISOString(),
         status: 'processing'
       };
 
-      // Save order to Firebase
-      const orderRef = ref(database, 'orders');
-      const newOrderRef = push(orderRef);
-      await set(newOrderRef, orderData);
-      const orderId = newOrderRef.key;
+      // 🔁 Send data to your backend (Express + PostgreSQL)
+      const response = await fetch('/api/orders', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(orderData)
+      });
 
-      // Update stock for each product in the cart
-      const stockUpdates = [];
-      for (const item of cart.items) {
-        stockUpdates.push(updateProductStock(item.id, item.quantity));
+      if (!response.ok) {
+        throw new Error('Failed to store order in PostgreSQL');
       }
 
-      // Wait for all stock updates to complete
-      const stockUpdateResults = await Promise.all(stockUpdates);
-      const allUpdatesSuccessful = stockUpdateResults.every(result => result);
+      const result = await response.json(); // should contain orderId
+      const orderId = result.orderId;
 
-      if (!allUpdatesSuccessful) {
-        throw new Error("Some stock updates failed");
-      }
-
-      // Clear cart and redirect on success
       dispatch(clearCart());
-      navigate('/order-success', { 
-        state: { 
+      navigate('/order-success', {
+        state: {
           orderId,
           customerName: `${form.firstName} ${form.lastName}`,
           totalAmount: orderData.totalAmount
-        } 
+        }
       });
 
     } catch (error) {

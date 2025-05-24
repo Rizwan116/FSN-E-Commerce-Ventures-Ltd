@@ -2,19 +2,22 @@ import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { Swiper, SwiperSlide } from "swiper/react";
-import { Navigation } from "swiper/modules";
+import { Navigation, Pagination } from "swiper/modules";
 import "swiper/css";
 import "swiper/css/navigation";
+import "swiper/css/pagination";
+import zoomIcon from "../src/assets/zoomiconpng.png";
 
 function Product() {
   const { productId } = useParams();
   const navigate = useNavigate();
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [zoomed, setZoomed] = useState(false);
+  const [error, setError] = useState(null);
+  const [zoomedImage, setZoomedImage] = useState(null);
   const [quantity, setQuantity] = useState(1);
   const [reviews, setReviews] = useState([]);
-  const [user, setUser] = useState(null); // Simulated user state (auth not handled here)
+  const [user, setUser] = useState(null); // Simulated user state
 
   const dummyImages = [
     "https://via.placeholder.com/400x300?text=Image+1",
@@ -44,11 +47,12 @@ function Product() {
   useEffect(() => {
     const fetchProduct = async () => {
       try {
-        const res = await axios.get(`/api/products/${productId}`);
-        setProduct(res.data.product); // Assuming res.data contains a product object
+        const res = await axios.get(`http://localhost:5000/api/products/${productId}`);
+        setProduct(res.data.product);
         setQuantity(1);
-      } catch (error) {
-        console.error("Error fetching product:", error);
+      } catch (err) {
+        setError("Product not found or server error");
+        console.error(err);
       } finally {
         setLoading(false);
       }
@@ -60,10 +64,11 @@ function Product() {
   useEffect(() => {
     const fetchReviews = async () => {
       try {
-        const res = await axios.get(`/api/products/${productId}/reviews`);
+        const res = await axios.get(`http://localhost:5000/api/reviews/${productId}`);
+        // Assuming PostgreSQL returns array of review objects with these fields
         setReviews(res.data.reviews.length > 0 ? res.data.reviews : dummyReviews);
       } catch (error) {
-        console.error("Error fetching reviews:", error);
+        console.error("Error fetching reviews from PostgreSQL:", error);
         setReviews(dummyReviews);
       }
     };
@@ -74,7 +79,7 @@ function Product() {
   const handleReviewSubmit = async (review) => {
     if (!user) return navigate("/signup");
     try {
-      await axios.post(`/api/products/${productId}/reviews`, review);
+      await axios.post(`http://localhost:5000/api/reviews/${productId}`, review);
       alert("Review submitted!");
     } catch (error) {
       console.error("Failed to submit review:", error);
@@ -88,7 +93,7 @@ function Product() {
     }
 
     const cartItem = {
-      productId: product.id,
+      productId: product._id,
       name: product.name,
       price: product.price,
       quantity,
@@ -98,14 +103,6 @@ function Product() {
     alert(`Added ${quantity} ${product.name} to your cart!`);
   };
 
-  const handleIncreaseQuantity = () => {
-    if (quantity < product.stock) {
-      setQuantity(quantity + 1);
-    } else {
-      alert("Cannot add more, stock is insufficient!");
-    }
-  };
-
   const handleDecreaseQuantity = () => {
     if (quantity > 1) {
       setQuantity(quantity - 1);
@@ -113,6 +110,7 @@ function Product() {
   };
 
   if (loading) return <div>Loading product...</div>;
+  if (error) return <div>{error}</div>;
   if (!product) return <div>Product not found.</div>;
 
   let images = [];
@@ -126,55 +124,100 @@ function Product() {
 
   return (
     <div className="product-detail-page" style={{ padding: "20px" }}>
-      <button onClick={() => navigate(-1)} style={{ marginBottom: "20px" }}>← Back</button>
-      <h1>{product.name}</h1>
+      <button onClick={() => navigate(-1)} style={{ marginBottom: "20px" }}>
+        ← Back
+      </button>
 
-      {/* Image Slider */}
-      <div className="image-slider-container" style={{ maxWidth: "400px", position: "relative" }}>
-        <Swiper spaceBetween={10} slidesPerView={1} navigation modules={[Navigation]}>
+      <div className="image-slider-container" style={{ maxWidth: "400px", position: "relative", textAlign: "center" }}>
+        <Swiper
+          spaceBetween={10}
+          slidesPerView={1}
+          navigation
+          pagination={{ clickable: true }}
+          modules={[Navigation, Pagination]}
+        >
           {images.map((img, index) => (
             <SwiperSlide key={index}>
               <img
                 src={img}
                 alt={`Slide ${index}`}
                 style={{
-                  width: "100%",
+                  width: "50%",
                   height: "auto",
-                  transform: zoomed ? "scale(1.5)" : "scale(1)",
-                  transition: "transform 0.3s",
                   cursor: "zoom-in",
+                  borderRadius: "5px",
                 }}
-                onClick={() => setZoomed(!zoomed)}
+                onClick={() => setZoomedImage(img)}
               />
             </SwiperSlide>
           ))}
         </Swiper>
+
         <button
-          onClick={() => setZoomed(!zoomed)}
+          onClick={() => setZoomedImage(images[0])}
           style={{
             position: "absolute",
-            top: 10,
+            top: -15,
             right: 10,
             background: "#000",
             color: "#fff",
-            padding: "5px 10px",
-            borderRadius: "4px",
+            padding: "7px 10px",
+            borderRadius: "46px",
             zIndex: 1,
           }}
         >
-          {zoomed ? "Zoom Out" : "Zoom In"}
+          <img src={zoomIcon} style={{ width: "20px", height: "20px" }} alt="Zoom Icon" />
         </button>
       </div>
 
+      {zoomedImage && (
+        <div
+          onClick={() => setZoomedImage(null)}
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            background: "rgba(0,0,0,0.8)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            zIndex: 1000,
+            cursor: "zoom-out",
+          }}
+        >
+          <img
+            src={zoomedImage}
+            alt="Zoomed"
+            style={{
+              maxHeight: "90vh",
+              maxWidth: "90vw",
+              borderRadius: "10px",
+            }}
+          />
+        </div>
+      )}
+
+      <h1>{product.name}</h1>
       <h4><strong>Price:</strong> ₹{product.price}</h4>
       <h4><strong>Description:</strong> {product.description || "No description provided."}</h4>
-      <h4><strong>Stock:</strong> {product.stock}</h4>
 
       <div style={{ margin: "10px 0" }}>
-        <button onClick={handleDecreaseQuantity} disabled={quantity <= 1}>-</button>
+        <button onClick={handleDecreaseQuantity} disabled={quantity <= 1} style={{ background: "transparent", borderRadius: "0 !important", borderColor: "#000", color: "#000", fontSize: "16px", padding: "5px 18px" }}>
+          -
+        </button>
         <span style={{ margin: "0 10px" }}>{quantity}</span>
-        <button onClick={handleIncreaseQuantity} disabled={quantity >= product.stock}>+</button>
-        <button onClick={handleAddToCart} style={{ marginLeft: "10px" }}>Add to Cart</button>
+        <button
+          onClick={() => setQuantity(quantity + 1)}
+          disabled={quantity >= product.stock}
+          style={{ background: "transparent", borderRadius: "0 !important", borderColor: "#000", color: "#000", fontSize: "16px", padding: "5px 18px" }}
+        >
+          +
+        </button>
+        <button onClick={handleAddToCart} style={{ marginLeft: "10px", background: "transparent", borderRadius: "0 !important", borderColor: "#000", color: "#000", fontSize: "16px", padding: "7px 57px" }}>
+          Add to Cart
+        </button>
       </div>
 
       {product.ingredients && (
@@ -184,22 +227,26 @@ function Product() {
       {product.howToUse && (
         <div>
           <h3>How to Use</h3>
-          <h1>{product.howToUse}</h1>
+          <p>{product.howToUse}</p>
         </div>
       )}
 
-      <div>
+      <div style={{ marginTop: "50px" }}>
         <h3>Reviews</h3>
         {reviews.map((r, idx) => (
           <div key={idx} style={{ border: "1px solid #ddd", padding: "10px", marginBottom: "10px" }}>
             <strong>{r.username}</strong> <strong>({r.category})</strong> - <strong>{r.date}</strong>
-            <div>{"★".repeat(r.stars)}{'☆'.repeat(5 - r.stars)}</div>
+            <div>{"★".repeat(r.stars)}{"☆".repeat(5 - r.stars)}</div>
             <h5>{r.comment}</h5>
           </div>
         ))}
-        <button onClick={() => user ? alert("Show Review Form") : navigate("/signup")}>Write a Review</button>
+        <button onClick={() => (user ? alert("Show Review Form") : navigate("/login"))} style={{ background: "transparent", borderRadius: "0 !important", borderColor: "#000", color: "#000", fontSize: "16px", padding: "7px 57px" }}>
+          Write a Review
+        </button>
       </div>
     </div>
+
+    
   );
 }
 

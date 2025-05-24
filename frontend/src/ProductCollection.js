@@ -116,19 +116,21 @@ const handleAddToCart = useCallback(
               <h3>₹{product.price}</h3>
             </Link>
 
-           <button
-          className={`view-product-btn ${
-            isUnavailable || isAlreadyInCart ? "sold-out" : ""
-          }`}
-          onClick={() => handleAddToCart(product)}
-          disabled={isUnavailable || isAlreadyInCart}
-        >
-          {isUnavailable
-            ? "SOLD OUT"
-            : isAlreadyInCart
-            ? "IN CART"
-            : "ADD TO CART"}
-        </button>
+          <button
+  className={`view-product-btn ${
+    (!product.is_available || product.is_available === null || isAlreadyInCart)
+      ? "sold-out"
+      : ""
+  }`}
+  onClick={() => handleAddToCart(product)}
+  disabled={!product.is_available || product.is_available === null || isAlreadyInCart}
+>
+  {!product.is_available || product.is_available === null
+    ? "SOLD OUT"
+    : isAlreadyInCart
+    ? "IN CART"
+    : "BUY NOW"}
+</button>
           </div>
         </SwiperSlide>
       );

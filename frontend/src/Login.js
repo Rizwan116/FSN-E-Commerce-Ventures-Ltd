@@ -4,7 +4,8 @@ import { useNavigate } from 'react-router-dom';
 import { AuthContext } from './context/AuthContext';
 import { GoogleLogin } from '@react-oauth/google';
 import { jwtDecode } from 'jwt-decode';
-
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const Login = () => {
   const { login } = useContext(AuthContext);
@@ -39,14 +40,16 @@ const Login = () => {
         localStorage.setItem('token', data.token);
 
         login(data.user);
-        alert('✅ Google Login successful!');
-        navigate('/');
+        toast.success('Google Login successful!');
+        setTimeout(() => navigate('/'), 2000);
       } else {
-        alert(`❌ Google Login failed: ${data.message}`);
+        toast.error(`❌ Google Login failed: ${data.message}`);
+        setTimeout(() => navigate('/'), 2000);
       }
     } catch (err) {
       console.error('Google login error:', err);
-      alert('❌ Google login failed');
+      toast.error('❌ Google login failed');
+      setTimeout(() => navigate('/'), 2000);
     }
   };
 
@@ -55,12 +58,12 @@ const Login = () => {
     const passwordRegex = /^.{6,}$/;
 
     if (!emailRegex.test(form.email)) {
-      alert('❗ Enter a valid email');
+      toast.warning('❗ Enter a valid email');
       return;
     }
 
     if (!passwordRegex.test(form.password)) {
-      alert('❗ Password must be at least 6 characters');
+      toast.warning('❗ Password must be at least 6 characters');
       return;
     }
 
@@ -79,23 +82,24 @@ const Login = () => {
         localStorage.setItem('user', JSON.stringify(data.user));
         localStorage.setItem('token', data.token);
         login(data.user);
-        alert('✅ Login successful!');
-        navigate('/');
+        toast.success('✅ Login successful!');
+        setTimeout(() => navigate('/'), 2000);
       } else if (response.status === 401) {
-        alert('❌ Incorrect email or password');
+        toast.error('❌ Incorrect email or password');
       } else {
-        alert(`⚠️ Login failed: ${data.message || 'Unknown error'}`);
+        toast.error(`⚠️ Login failed: ${data.message || 'Unknown error'}`);
       }
     } catch (error) {
       console.error('Login error:', error);
-      alert('❌ Login failed: ' + error.message);
+      toast.error('❌ Login failed: ' + error.message);
     }
   };
 
   return (
     <div className="auth-form">
+      <ToastContainer />
       <h2>Login</h2>
-      <input
+      {/* <input
         name="email"
         placeholder="Email"
         onChange={handleChange}
@@ -116,12 +120,12 @@ const Login = () => {
         style={{ cursor: 'pointer' }}
       >
         Forgot Password?
-      </h6>
+      </h6> */}
 
-      <div style={{ marginTop: '1rem' }}>
+      <div style={{ marginTop: '1rem', textAlign: 'center', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
         <GoogleLogin
           onSuccess={handleGoogleSuccess}
-          onError={() => alert('Google Login Failed')}
+          onError={() => toast.error('Google Login Failed')}
         />
       </div>
     </div>
