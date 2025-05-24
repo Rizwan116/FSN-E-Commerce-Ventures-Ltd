@@ -5,7 +5,7 @@ const createProductTableQuery = `
         description TEXT NOT NULL,
         price DECIMAL(10, 2) NOT NULL,
         image VARCHAR(255) NOT NULL,
-        product_urls TEXT[] DEFAULT '{}',
+        product_urls TEXT[] DEFAULT ARRAY[]::TEXT[],
         category VARCHAR(255) NOT NULL,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -18,10 +18,13 @@ const createProductTableQuery = `
 const createOrderTableQuery = `
     CREATE TABLE IF NOT EXISTS orders (
         id SERIAL PRIMARY KEY,
+        user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
         product_id INTEGER REFERENCES products(id) ON DELETE CASCADE,
         quantity INTEGER NOT NULL,
         total_price DECIMAL(10, 2) NOT NULL,
         address TEXT NOT NULL,
+        is_cancelled BOOLEAN DEFAULT FALSE,
+        cancelled_at TIMESTAMP DEFAULT NULL,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     );
@@ -101,7 +104,7 @@ const getProductByIdQuery = `
 `;
 
 const getOrdersQuery = `
-    SELECT id, product_id, quantity, total_price, address, created_at, updated_at
+    SELECT id, user_id, product_id, quantity, total_price, address, is_cancelled, cancelled_at, created_at, updated_at
     FROM orders;
 `;
 
@@ -123,7 +126,9 @@ const updateProductQuery = `
 `;
 
 const deleteProductQuery = `
-    SET is_deleted = TRUE AND updated_at = CURRENT_TIMESTAMP AND deleted_at = CURRENT_TIMESTAMP WHERE id = $1
+    UPDATE products
+    SET is_deleted = TRUE, updated_at = CURRENT_TIMESTAMP, deleted_at = CURRENT_TIMESTAMP
+    WHERE id = $1
     RETURNING id, name, description, price, image, category, reviews_count, reviews_rating, created_at, updated_at, is_available, is_deleted, deleted_at, product_urls;
 `;
 
@@ -152,19 +157,19 @@ const getUserByIdQuery = `
 `;
 
 const getOrdersbyUserIdQuery = `
-    SELECT id, product_id, quantity, total_price, address, created_at, updated_at
+    SELECT id, user_id, product_id, quantity, total_price, address, is_cancelled, cancelled_at, created_at, updated_at
     FROM orders
     WHERE user_id = $1;
 `;
 
 const getOrderByUserIdAndProductIdQuery = `
-    SELECT id, product_id, quantity, total_price, address, created_at, updated_at
+    SELECT id, user_id, product_id, quantity, total_price, address, is_cancelled, cancelled_at, created_at, updated_at
     FROM orders
     WHERE user_id = $1 AND product_id = $2;
 `;
 
 const getOrderbyIdQuery = `
-    SELECT id, product_id, quantity, total_price, address, created_at, updated_at
+    SELECT id, user_id, product_id, quantity, total_price, address, is_cancelled, cancelled_at, created_at, updated_at
     FROM orders
     WHERE id = $1;
 `;
@@ -172,19 +177,19 @@ const getOrderbyIdQuery = `
 const createOrderQuery = `
     INSERT INTO orders (user_id, product_id, quantity, total_price, address)
     VALUES ($1, $2, $3, $4, $5)
-    RETURNING id, address, user_id, product_id, quantity, total_price, created_at, updated_at;
+    RETURNING id, user_id, product_id, quantity, total_price, address, is_cancelled, cancelled_at, created_at, updated_at;
 `;
 
 const updateOrderQuery = `
     UPDATE orders SET product_id = $1, quantity = $2, total_price = $3, address = $4
     WHERE id = $5
-    RETURNING id, product_id, quantity, total_price, address, created_at, updated_at;
+    RETURNING id, user_id, product_id, quantity, total_price, address, is_cancelled, cancelled_at, created_at, updated_at;
 `;
 
-const deleteOrderQuery = `
-    DELETE FROM orders
+const cancelOrderQuery = `
+    UPDATE orders SET is_cancelled = TRUE, cancelled_at = CURRENT_TIMESTAMP
     WHERE id = $1
-    RETURNING id, address, user_id, product_id, quantity, total_price, created_at, updated_at;
+    RETURNING id, user_id, product_id, quantity, total_price, address, is_cancelled, cancelled_at, created_at, updated_at;
 `;
 
 const getReviewsByProductIdQuery = `
@@ -260,7 +265,7 @@ export const sql_queries = {
     getOrderbyIdQuery,
     createOrderQuery,
     updateOrderQuery,
-    deleteOrderQuery,
+    cancelOrderQuery,
     getReviewsByProductIdQuery,
     createReviewQuery,
     updateReviewQuery,
