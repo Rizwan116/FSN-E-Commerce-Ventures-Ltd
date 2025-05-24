@@ -20,6 +20,26 @@ export const getProducts = async (req, res) => {
    }
 }
 
+export const getAllProducts = async (req, res) => {
+     try {
+        const result = await pgClient.query(sql_queries.getAllProductsQuery);
+        const products = result.rows;
+          res.status(200).json({
+            success: true,
+            message: 'Products fetched successfully',
+            products,
+        });
+   } catch (error) {
+       console.error('Error fetching products:', error);
+       res.status(500).json({
+           success: false,
+           message: 'Error fetching products',
+           error: error.message,
+       });
+   }
+}
+
+
 export const getProductById = async (req, res) => {
   const { id } = req.params;
   try {
@@ -154,7 +174,7 @@ export const deleteProduct = async (req, res) => {
 export const getProductReviews = async (req, res) => {
   const { id } = req.params;
   try {
-    const result = await pgClient.query(sql_queries.getProductReviewsQuery, [id]);
+    const result = await pgClient.query(sql_queries.getReviewsByProductIdQuery, [id]);
     const reviews = result.rows;
 
     if (!reviews) {
@@ -238,7 +258,7 @@ export const updateProductReview = async (req, res) => {
   }
 
   try {
-    const result = await pgClient.query(sql_queries.updateProductReviewQuery, [rating, comment, id]);
+    const result = await pgClient.query(sql_queries.updateReviewQuery, [rating, comment, id]);
     const updatedReview = result.rows[0];
 
     if (!updatedReview) {
@@ -267,7 +287,7 @@ export const deleteProductReview = async (req, res) => {
   const { id } = req.params;
 
   try {
-    const result = await pgClient.query(sql_queries.deleteProductReviewQuery, [id]);
+    const result = await pgClient.query(sql_queries.deleteReviewQuery, [id]);
     const deletedReview = result.rows[0];
 
     if (!deletedReview) {
@@ -336,6 +356,65 @@ export const getReviewById = async (req, res) => {
     res.status(200).json({
       success: true,
       message: `Review with id ${id} fetched successfully`,
+      review,
+    });
+  } catch (error) {
+    console.error('Error fetching review:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error fetching review',
+      error: error.message,
+    });
+  }
+}
+
+export const getReviewByProductId = async (req, res) => {
+  const { productId } = req.params;
+  try {
+    const result = await pgClient.query(sql_queries.getReviewsByProductIdQuery, [productId]);
+    const review = result.rows[0];
+
+    if (!review) {
+      return res.status(404).json({
+        success: false,
+        message: `Review with id ${id} not found`,
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: `Review with id ${id} fetched successfully`,
+      review,
+    });
+  } catch (error) {
+    console.error('Error fetching review:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error fetching review',
+      error: error.message,
+    });
+  }
+}
+
+export const getReviewByProductIdAndUserId = async (req, res) => {
+  const { productId, userId } = req.params;
+  try {
+    const result = await pgClient.query(
+      sql_queries.getReviewByProductIdAndUserIdQuery,
+      [productId, userId]
+    );
+    const review = result.rows[0];
+
+    if (!review) {
+      return res.status(404).json({
+        success: false,
+        message: `Review for product ${productId} by user ${userId} not found`,
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: `Review for product ${productId} by user ${userId} fetched successfully`,
       review,
     });
   } catch (error) {

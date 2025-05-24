@@ -14,7 +14,7 @@ export const getOrders = async (req, res) => {
 export const getOrdersByUserId = async (req, res) => {
     const userId = req.params.id;
     try {
-        const result = await pgClient.query(sql_queries.getOrdersbyUserIdQuery, [userId]);
+        const result = await pgClient.query(sql_queries.getOrdersByUserIdQuery, [userId]);
         if (result.rows.length === 0) {
             return res.status(404).json({ error: 'Orders not found' });
         }

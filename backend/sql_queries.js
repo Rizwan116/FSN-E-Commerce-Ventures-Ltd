@@ -67,8 +67,10 @@ const createReviewTableQuery = `
         user_profile_image VARCHAR(255),
         rating INTEGER CHECK (rating >= 1 AND rating <= 5),
         comment TEXT,
+        is_deleted BOOLEAN DEFAULT FALSE,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        deleted_at TIMESTAMP DEFAULT NULL
     );
 `;
 
@@ -96,11 +98,15 @@ const getProductsQuery = `
     AND is_deleted = FALSE
 `;
 
+const getAllProductsQuery = `
+    SELECT id, name, description, price, image, category, reviews_count, reviews_rating, created_at, updated_at, is_available, product_urls, is_deleted, deleted_at
+    FROM products
+`;
+
 const getProductByIdQuery = `
-    SELECT id, name, description, price, image, category, reviews_count, reviews_rating, created_at, updated_at, is_available, product_urls
+    SELECT id, name, description, price, image, category, reviews_count, reviews_rating, created_at, updated_at, is_available, product_urls, is_deleted, deleted_at
     FROM products
     WHERE id = $1
-    AND is_deleted = FALSE
 `;
 
 const getOrdersQuery = `
@@ -116,20 +122,20 @@ const getUsersQuery = `
 const createProductQuery = `
     INSERT INTO products (name, description, price, image, category, is_available, product_urls)
     VALUES ($1, $2, $3, $4, $5, $6, $7)
-    RETURNING id, name, description, price, image, category, is_available, created_at, updated_at;
+    RETURNING id, name, description, price, image, category, is_available, product_urls, created_at, updated_at;
 `;
 
 const updateProductQuery = `
     UPDATE products SET name = $1, description = $2, price = $3, image = $4, category = $5, is_available = $6, product_urls = $7
     WHERE id = $8
-    RETURNING id, name, description, price, image, category, reviews_count, reviews_rating, created_at, updated_at, is_available, is_deleted, deleted_at;
+    RETURNING id, name, description, price, image, category, reviews_count, reviews_rating, created_at, updated_at, is_available, product_urls, is_deleted, deleted_at;
 `;
 
 const deleteProductQuery = `
     UPDATE products
     SET is_deleted = TRUE, updated_at = CURRENT_TIMESTAMP, deleted_at = CURRENT_TIMESTAMP
     WHERE id = $1
-    RETURNING id, name, description, price, image, category, reviews_count, reviews_rating, created_at, updated_at, is_available, is_deleted, deleted_at, product_urls;
+    RETURNING id, name, description, price, image, category, reviews_count, reviews_rating, created_at, updated_at, is_available, product_urls, is_deleted, deleted_at;
 `;
 
 const getUserByEmailQuery = `
@@ -187,7 +193,7 @@ const updateOrderQuery = `
 `;
 
 const cancelOrderQuery = `
-    UPDATE orders SET is_cancelled = TRUE, cancelled_at = CURRENT_TIMESTAMP
+    UPDATE orders SET is_cancelled = TRUE, updated_at = CURRENT_TIMESTAMP, cancelled_at = CURRENT_TIMESTAMP
     WHERE id = $1
     RETURNING id, user_id, product_id, quantity, total_price, address, is_cancelled, cancelled_at, created_at, updated_at;
 `;
@@ -195,7 +201,7 @@ const cancelOrderQuery = `
 const getReviewsByProductIdQuery = `
     SELECT id, product_id, user_id, user_firstname, user_lastname, user_profile_image, rating, comment, created_at, updated_at
     FROM reviews
-    WHERE product_id = $1;
+    WHERE product_id = $1 AND is_deleted = FALSE;
 `;
 
 const createReviewQuery = `
@@ -211,19 +217,20 @@ const updateReviewQuery = `
 `;
 
 const deleteReviewQuery = `
-    DELETE FROM reviews
+    UPDATE reviews
+    SET is_deleted = TRUE, updated_at = CURRENT_TIMESTAMP, deleted_at = CURRENT_TIMESTAMP
     WHERE id = $1
-    RETURNING id, product_id, user_id, rating, comment, created_at, updated_at;
+    RETURNING id, product_id, user_id, rating, comment, created_at, updated_at, is_deleted, deleted_at;
 `;
 
 const getReviewsByUserIdQuery = `
     SELECT id, product_id, user_id, user_firstname, user_lastname, user_profile_image, rating, comment, created_at, updated_at
     FROM reviews
-    WHERE user_id = $1;
+    WHERE user_id = $1 AND is_deleted = FALSE;
 `;
 
 const getReviewByIdQuery = `
-    SELECT id, product_id, user_id, user_firstname, user_lastname, user_profile_image, rating, comment, created_at, updated_at
+    SELECT id, product_id, user_id, user_firstname, user_lastname, user_profile_image, rating, comment, created_at, updated_at, is_deleted, deleted_at
     FROM reviews
     WHERE id = $1;
 `;
@@ -231,7 +238,7 @@ const getReviewByIdQuery = `
 const getReviewByProductIdAndUserIdQuery = `
     SELECT id, product_id, user_id, user_firstname, user_lastname, user_profile_image, rating, comment, created_at, updated_at
     FROM reviews
-    WHERE product_id = $1 AND user_id = $2;
+    WHERE product_id = $1 AND user_id = $2 AND is_deleted = FALSE;
 `;
 
 const getOrdersByProductIdQuery = `
@@ -250,6 +257,7 @@ export const sql_queries = {
     checkUserQuery,
     resetPasswordQuery,
     getProductsQuery,
+    getAllProductsQuery,
     getProductByIdQuery,
     getOrdersQuery,
     getUsersQuery,
