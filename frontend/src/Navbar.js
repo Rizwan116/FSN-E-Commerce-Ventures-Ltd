@@ -52,10 +52,11 @@
 
 // export default Navbar;
 
-// Navbar.js
 import React, { useContext } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 import { AuthContext } from "./context/AuthContext"; // ✅ Adjust the path if needed
+import { ToastContainer, toast } from "react-toastify";
+import 'react-toastify/dist/ReactToastify.css';
 
 function Navbar() {
   const { isLoggedIn, logout } = useContext(AuthContext);
@@ -63,12 +64,14 @@ function Navbar() {
 
   const handleLogout = () => {
     logout(); // Call the context's logout method
-    localStorage.removeItem("user"); // Optional: clear user data
-    navigate("/login");
+    // localStorage.removeItem("user"); // Optional: clear user data
+    toast.success("✅ Logged out successfully!");
+    setTimeout(() => navigate("/login"), 2000); // Delay to show toast
   };
 
   return (
     <div className="navbar-section">
+      <ToastContainer />
       <div className="navbar-container">
         <NavLink to="/shop" className={({ isActive }) => (isActive ? "active" : "")}>
           Shop Now
@@ -85,12 +88,12 @@ function Navbar() {
             <NavLink to="/login" className={({ isActive }) => (isActive ? "active" : "")}>
               Login
             </NavLink>
-            <NavLink to="/signup" className={({ isActive }) => (isActive ? "active" : "")}>
+            {/* <NavLink to="/signup" className={({ isActive }) => (isActive ? "active" : "")}>
               Signup
             </NavLink>
             <NavLink to="/forget-password" className={({ isActive }) => (isActive ? "active" : "")}>
               Forget Password
-            </NavLink>
+            </NavLink> */}
           </>
         )}
 
@@ -103,7 +106,7 @@ function Navbar() {
               Order Details
             </NavLink>
             <NavLink to="/track-order" className={({ isActive }) => (isActive ? "active" : "")}>
-            Track Your Order
+              Track Your Order
             </NavLink>
             <NavLink
               onClick={handleLogout}
@@ -114,7 +117,7 @@ function Navbar() {
           </>
         )}
         <NavLink to="/contact" className={({ isActive }) => (isActive ? "active" : "")}>
-        Contact Us
+          Contact Us
         </NavLink>
 
         <NavLink to="/adminpanel" className={({ isActive }) => (isActive ? "active" : "")}>
@@ -126,4 +129,5 @@ function Navbar() {
 }
 
 export default Navbar;
+
 

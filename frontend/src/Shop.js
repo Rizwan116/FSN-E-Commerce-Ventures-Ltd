@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { addToCart } from './redux/cartSlice';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { useNavigate } from 'react-router-dom'; // ✅ Added for navigation
 
 function Shop() {
   const [products, setProducts] = useState([]);
@@ -13,33 +14,34 @@ function Shop() {
 
   const dispatch = useDispatch();
   const cartItems = useSelector((state) => state.cart.items);
+  const navigate = useNavigate(); // ✅ Added for navigation
 
-useEffect(() => {
-  fetch('http://localhost:5000/api/products')
-    .then((res) => res.json())
-    .then((data) => {
-      console.log("Fetched products:", data);
+  useEffect(() => {
+    fetch('http://localhost:5000/api/products')
+      .then((res) => res.json())
+      .then((data) => {
+        console.log("Fetched products:", data);
 
-      if (Array.isArray(data)) {
-        setProducts(data);
-        setFiltered(data);
-        extractCategories(data);
-      } else if (Array.isArray(data.products)) {
-        setProducts(data.products);
-        setFiltered(data.products);
-        extractCategories(data.products);
-      } else {
-        console.error("Unexpected data format", data);
+        if (Array.isArray(data)) {
+          setProducts(data);
+          setFiltered(data);
+          extractCategories(data);
+        } else if (Array.isArray(data.products)) {
+          setProducts(data.products);
+          setFiltered(data.products);
+          extractCategories(data.products);
+        } else {
+          console.error("Unexpected data format", data);
+          setProducts([]);
+          setFiltered([]);
+        }
+      })
+      .catch((err) => {
+        console.error('Failed to load products:', err);
         setProducts([]);
         setFiltered([]);
-      }
-    })
-    .catch((err) => {
-      console.error('Failed to load products:', err);
-      setProducts([]);
-      setFiltered([]);
-    });
-}, []);
+      });
+  }, []);
 
   const extractCategories = (data) => {
     const categories = ['All', ...new Set(data.map((item) => item.category || 'Uncategorized'))];
@@ -97,7 +99,9 @@ useEffect(() => {
     }
   };
 
-  
+  const handleProductClick = (productId) => {
+    navigate(`/product/${productId}`); // ✅ Navigates to Product page
+  };
 
   return (
     <div className="shop-page">
@@ -128,15 +132,26 @@ useEffect(() => {
           const outOfStock = product.stock === 0 || currentQtyInCart >= product.stock;
 
           return (
-            <div className="product-card" key={product.id}>
-              <img src={product.image} alt={product.name} className="product-image" />
+            <div
+              className="product-card"
+              key={product.id}
+              onClick={() => handleProductClick(product.id)} // ✅ Added onClick
+              style={{ cursor: 'pointer' }} // Optional for visual feedback
+            >
+              <img src={product.image} alt={product.name} className="product-image"  />
               <h3 className="product-name">{product.name}</h3>
               <h3 className="product-rating">⭐ {product.ratings || 4.0}</h3>
               <h3 className="product-price">₹ {product.price}</h3>
               {outOfStock ? (
                 <button className="add-to-cart-btn" disabled>❌ Not Available</button>
               ) : (
-                <button className="add-to-cart-btn" onClick={() => handleAddToCart(product)}>
+                <button
+                  className="add-to-cart-btn"
+                  onClick={(e) => {
+                    e.stopPropagation(); // ✅ Prevents navigation when clicking button
+                    handleAddToCart(product);
+                  }}
+                >
                   Add to Cart 🛒
                 </button>
               )}
