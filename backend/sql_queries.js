@@ -92,19 +92,19 @@ const resetPasswordQuery = `
 `;
 
 const getProductsQuery = `
-    SELECT id, name, description, price, image, category, reviews_count, reviews_rating, created_at, updated_at, is_available, product_urls
+    SELECT id, name, description, price, image, category, created_at, updated_at, is_available, product_urls
     FROM products
     WHERE is_available = TRUE
     AND is_deleted = FALSE
 `;
 
 const getAllProductsQuery = `
-    SELECT id, name, description, price, image, category, reviews_count, reviews_rating, created_at, updated_at, is_available, product_urls, is_deleted, deleted_at
+    SELECT id, name, description, price, image, category, created_at, updated_at, is_available, product_urls, is_deleted, deleted_at
     FROM products
 `;
 
 const getProductByIdQuery = `
-    SELECT id, name, description, price, image, category, reviews_count, reviews_rating, created_at, updated_at, is_available, product_urls, is_deleted, deleted_at
+    SELECT id, name, description, price, image, category, created_at, updated_at, is_available, product_urls, is_deleted, deleted_at
     FROM products
     WHERE id = $1
 `;
@@ -128,14 +128,14 @@ const createProductQuery = `
 const updateProductQuery = `
     UPDATE products SET name = $1, description = $2, price = $3, image = $4, category = $5, is_available = $6, product_urls = $7
     WHERE id = $8
-    RETURNING id, name, description, price, image, category, reviews_count, reviews_rating, created_at, updated_at, is_available, product_urls, is_deleted, deleted_at;
+    RETURNING id, name, description, price, image, category, created_at, updated_at, is_available, product_urls, is_deleted, deleted_at;
 `;
 
 const deleteProductQuery = `
     UPDATE products
     SET is_deleted = TRUE, updated_at = CURRENT_TIMESTAMP, deleted_at = CURRENT_TIMESTAMP
     WHERE id = $1
-    RETURNING id, name, description, price, image, category, reviews_count, reviews_rating, created_at, updated_at, is_available, product_urls, is_deleted, deleted_at;
+    RETURNING id, name, description, price, image, category, created_at, updated_at, is_available, product_urls, is_deleted, deleted_at;
 `;
 
 const getUserByEmailQuery = `

@@ -17,7 +17,7 @@ function Shop() {
   const navigate = useNavigate(); // ✅ Added for navigation
 
   useEffect(() => {
-    fetch('http://localhost:5000/api/products')
+    fetch('http://localhost:5000/api/products_1')
       .then((res) => res.json())
       .then((data) => {
         console.log("Fetched products:", data);

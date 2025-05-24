@@ -25,7 +25,7 @@ function ProductCollection() {
   // Fetch products from backend
   const fetchProducts = useCallback(async () => {
     try {
-      const response = await fetch("http://localhost:5000/api/products");
+      const response = await fetch("http://localhost:5000/api/products_2");
       if (!response.ok) throw new Error("Failed to fetch products");
       const data = await response.json();
 
