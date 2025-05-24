@@ -28,8 +28,7 @@ frontend:
         - npm ci --prefix backend
     build:
       commands:
-        - echo "Building backend (if applicable)..."
-        - npm run build --prefix backend
+        - echo "No backend build step needed, skipping..."
         - echo "Building frontend..."
         - npm run build --prefix frontend
   artifacts:
