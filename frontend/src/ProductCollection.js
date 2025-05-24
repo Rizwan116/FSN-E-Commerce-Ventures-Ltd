@@ -25,7 +25,7 @@ function ProductCollection() {
   // Fetch products from backend
   const fetchProducts = useCallback(async () => {
     try {
-      const response = await fetch("http://localhost:5000/api/products_2");
+      const response = await fetch("http://localhost:5000/api/products");
       if (!response.ok) throw new Error("Failed to fetch products");
       const data = await response.json();
 
@@ -43,8 +43,6 @@ function ProductCollection() {
 
   useEffect(() => {
     fetchProducts();
-    const intervalId = setInterval(fetchProducts, 10000);
-    return () => clearInterval(intervalId);
   }, [fetchProducts, location.key]);
 
   const handleRating = useCallback((productId, value) => {
