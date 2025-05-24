@@ -40,9 +40,9 @@ export const getOrderById = async (req, res) => {
 }
 
 export const createOrder = async (req, res) => {
-    const { address, user_id, product_id, quantity, total_price } = req.body;
+    const { user_id, product_id, quantity, total_price, address } = req.body;
     try {
-        const result = await pgClient.query(sql_queries.createOrderQuery, [address, user_id, product_id, quantity, total_price]);
+        const result = await pgClient.query(sql_queries.createOrderQuery, [ user_id, product_id, quantity, total_price, address]);
         res.status(201).json(result.rows[0]);
     } catch (error) {
         console.error('Error creating order:', error);
@@ -52,9 +52,9 @@ export const createOrder = async (req, res) => {
 
 export const updateOrder = async (req, res) => {
     const orderId = req.params.id;
-    const { address, user_id, product_id, quantity, total_price } = req.body;
+    const { product_id, quantity, total_price, address} = req.body;
     try {
-        const result = await pgClient.query(sql_queries.updateOrderQuery, [address, user_id, product_id, quantity, total_price, orderId]);
+        const result = await pgClient.query(sql_queries.updateOrderQuery, [product_id, quantity, total_price, address, orderId]);
         if (result.rows.length === 0) {
             return res.status(404).json({ error: 'Order not found' });
         }
@@ -65,10 +65,10 @@ export const updateOrder = async (req, res) => {
     }
 }
 
-export const deleteOrder = async (req, res) => {
+export const cancelOrder = async (req, res) => {
     const orderId = req.params.id;
     try {
-        const result = await pgClient.query(sql_queries.deleteOrderQuery, [orderId]);
+        const result = await pgClient.query(sql_queries.cancelOrderQuery, [orderId]);
         if (result.rows.length === 0) {
             return res.status(404).json({ error: 'Order not found' });
         }

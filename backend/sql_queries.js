@@ -156,7 +156,7 @@ const getUserByIdQuery = `
     WHERE id = $1;
 `;
 
-const getOrdersbyUserIdQuery = `
+const getOrdersByUserIdQuery = `
     SELECT id, user_id, product_id, quantity, total_price, address, is_cancelled, cancelled_at, created_at, updated_at
     FROM orders
     WHERE user_id = $1;
@@ -168,7 +168,7 @@ const getOrderByUserIdAndProductIdQuery = `
     WHERE user_id = $1 AND product_id = $2;
 `;
 
-const getOrderbyIdQuery = `
+const getOrderByIdQuery = `
     SELECT id, user_id, product_id, quantity, total_price, address, is_cancelled, cancelled_at, created_at, updated_at
     FROM orders
     WHERE id = $1;
@@ -261,8 +261,8 @@ export const sql_queries = {
     getUserByEmailQuery,
     getUserByIdQuery,
     getOrderByUserIdAndProductIdQuery,
-    getOrdersbyUserIdQuery,
-    getOrderbyIdQuery,
+    getOrdersByUserIdQuery,
+    getOrderByIdQuery,
     createOrderQuery,
     updateOrderQuery,
     cancelOrderQuery,
