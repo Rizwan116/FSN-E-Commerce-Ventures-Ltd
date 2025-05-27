@@ -5,6 +5,7 @@ import {
   increaseQuantity,
   decreaseQuantity,
   clearCart,
+  selectCartItems,
 } from "./redux/cartSlice";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -14,31 +15,29 @@ import {
   faCheckCircle,
 } from "@fortawesome/free-solid-svg-icons";
 import { toast } from "react-toastify";
-import { useNavigate } from "react-router-dom"; // ✅ import useNavigate
+import { useNavigate } from "react-router-dom";
 
 function CartPage() {
   const dispatch = useDispatch();
-  const navigate = useNavigate(); // ✅ initialize navigate
-  const cartItems = useSelector((state) => state.cart.items);
+  const navigate = useNavigate();
+
+  // Use the selector inside the component
+  const cartItems = useSelector(selectCartItems);
 
   const cleanPrice = (price) => {
     if (typeof price === "number") return price;
     return parseFloat(price?.replace(/[^\d.]/g, "")) || 0;
   };
 
-  const totalAmount = cartItems.reduce((total, item) => {
-    return total + cleanPrice(item.price) * item.quantity;
-  }, 0);
+  const totalAmount = cartItems.reduce(
+    (total, item) => total + cleanPrice(item.price) * item.quantity,
+    0
+  );
 
   const handleRemove = (id) => {
     dispatch(removeFromCart(id));
     toast.info("Item removed from cart 🗑️");
   };
-
-  // const handleRemove = (id) => {
-  //   dispatch(removeFromCart(id));
-  //   toast.info("Item removed from cart 🗑️");
-  // };
 
   const handleIncrease = (item) => {
     if (item.quantity < item.stock) {
@@ -55,7 +54,6 @@ function CartPage() {
   };
 
   const handleCheckout = () => {
-    // ✅ Navigate to Billing page and pass cart details
     navigate("/billing", {
       state: {
         cartItems,
