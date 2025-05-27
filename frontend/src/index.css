@@ -47,7 +47,7 @@ section {
   position: fixed;
   top: 0;
   width: 100%;
-  z-index: 2;
+  z-index: 3;
 }
 
 .single-announcement-slide {
@@ -1330,6 +1330,7 @@ h2 {
     font-size: 22px;
     margin-bottom: 1rem;
     letter-spacing: 1px;
+    
   }
   
   .banner-cta {
@@ -1340,6 +1341,7 @@ h2 {
     cursor: pointer;
     font-weight: normal;
     border-radius: 0px;
+    
   }
   .banner-cta:hover {
     background-color: #7e7e7e;

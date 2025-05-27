@@ -366,7 +366,7 @@ export const getReviewById = async (req, res) => {
       error: error.message,
     });
   }
-}
+};
 
 export const getReviewByProductId = async (req, res) => {
   const { productId } = req.params;

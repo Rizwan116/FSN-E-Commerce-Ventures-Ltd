@@ -63,40 +63,62 @@ const Billing = () => {
     setIsSubmitting(true);
 
     try {
-      const orderData = {
-        ...form,
-        cart: cart.items,
-        totalAmount: cart.items.reduce((sum, item) => sum + (item.price * item.quantity), 0),
-        timestamp: new Date().toISOString(),
-        status: 'processing'
-      };
+      const fullAddress = `${form.address}, ${form.nearbyLocation}, ${form.pincode}`;
+      
+      // Create array of order promises for each cart item
+      const orderPromises = cart.items.map(item => {
+        const orderData = {
+          user_id: null, // Should be handled via authentication in real app
+          product_id: item.id,
+          quantity: item.quantity,
+          total_price: item.price * item.quantity,
+          address: fullAddress,
+          customer_email: form.email, // Additional field for backend reference
+          customer_phone: form.phone
+        };
 
-      // 🔁 Send data to your backend (Express + PostgreSQL)
-      const response = await fetch('/api/orders', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(orderData)
+        return fetch('http://localhost:5000/orders/createOrder', {
+          method: 'POST',
+          headers: { 
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('token') || ''}`
+          },
+          body: JSON.stringify(orderData)
+        });
       });
 
-      if (!response.ok) {
-        throw new Error('Failed to store order in PostgreSQL');
+      // Execute all order creations
+      const responses = await Promise.all(orderPromises);
+      
+      // Check for any failed responses
+      const errors = await Promise.all(
+        responses.map(response => 
+          response.ok ? null : response.json().then(err => err.error)
+        )
+      );
+      
+      const hasErrors = errors.some(error => error !== null);
+      if (hasErrors) {
+        throw new Error(errors.find(error => error !== null) || 'Order creation failed');
       }
 
-      const result = await response.json(); // should contain orderId
-      const orderId = result.orderId;
+      // Get all created order IDs
+      const results = await Promise.all(
+        responses.map(response => response.json())
+      );
+      const orderIds = results.map(result => result.id);
 
       dispatch(clearCart());
       navigate('/order-success', {
         state: {
-          orderId,
+          orderIds,
           customerName: `${form.firstName} ${form.lastName}`,
-          totalAmount: orderData.totalAmount
-        }
+          totalAmount: cart.items.reduce((sum, item) => sum + item.price * item.quantity, 0),
+        },
       });
-
     } catch (error) {
       console.error('Order submission failed:', error);
-      alert('❌ Failed to place order. Please try again.');
+      alert(`❌ Failed to place order. Please try again.\nError: ${error.message}`);
     } finally {
       setIsSubmitting(false);
     }
@@ -106,56 +128,98 @@ const Billing = () => {
     <div className="billing-form">
       <h2>Fill your Billing Address</h2>
 
-      <div className="form-group">
-        <input name="firstName" placeholder="First Name" onChange={handleChange} value={form.firstName} />
-        {errors.firstName && <p className="error-msg">{errors.firstName}</p>}
-      </div>
+      <form onSubmit={handleSubmit}>
+        {/* All your existing form fields remain unchanged */}
+        <div className="form-group">
+          <input
+            name="firstName"
+            placeholder="First Name"
+            onChange={handleChange}
+            value={form.firstName}
+          />
+          {errors.firstName && <p className="error-msg">{errors.firstName}</p>}
+        </div>
 
-      <div className="form-group">
-        <input name="lastName" placeholder="Last Name" onChange={handleChange} value={form.lastName} />
-        {errors.lastName && <p className="error-msg">{errors.lastName}</p>}
-      </div>
+        <div className="form-group">
+          <input
+            name="lastName"
+            placeholder="Last Name"
+            onChange={handleChange}
+            value={form.lastName}
+          />
+          {errors.lastName && <p className="error-msg">{errors.lastName}</p>}
+        </div>
 
-      <div className="form-group">
-        <input name="phone" placeholder="Phone Number" onChange={handleChange} value={form.phone} />
-        {errors.phone && <p className="error-msg">{errors.phone}</p>}
-      </div>
+        <div className="form-group">
+          <input
+            name="phone"
+            placeholder="Phone Number"
+            onChange={handleChange}
+            value={form.phone}
+          />
+          {errors.phone && <p className="error-msg">{errors.phone}</p>}
+        </div>
 
-      <div className="form-group">
-        <input name="email" placeholder="Email Address" onChange={handleChange} value={form.email} />
-        {errors.email && <p className="error-msg">{errors.email}</p>}
-      </div>
+        <div className="form-group">
+          <input
+            name="email"
+            placeholder="Email Address"
+            onChange={handleChange}
+            value={form.email}
+          />
+          {errors.email && <p className="error-msg">{errors.email}</p>}
+        </div>
 
-      <div className="form-group">
-        <input name="address" placeholder="Address" onChange={handleChange} value={form.address} />
-        {errors.address && <p className="error-msg">{errors.address}</p>}
-      </div>
+        <div className="form-group">
+          <input
+            name="address"
+            placeholder="Address"
+            onChange={handleChange}
+            value={form.address}
+          />
+          {errors.address && <p className="error-msg">{errors.address}</p>}
+        </div>
 
-      <div className="form-group">
-        <input name="pincode" placeholder="Pincode" onChange={handleChange} value={form.pincode} />
-        {errors.pincode && <p className="error-msg">{errors.pincode}</p>}
-      </div>
+        <div className="form-group">
+          <input
+            name="pincode"
+            placeholder="Pincode"
+            onChange={handleChange}
+            value={form.pincode}
+          />
+          {errors.pincode && <p className="error-msg">{errors.pincode}</p>}
+        </div>
 
-      <div className="form-group">
-        <input name="nearbyLocation" placeholder="Nearby Location" onChange={handleChange} value={form.nearbyLocation} />
-      </div>
+        <div className="form-group">
+          <input
+            name="nearbyLocation"
+            placeholder="Nearby Location"
+            onChange={handleChange}
+            value={form.nearbyLocation}
+          />
+        </div>
 
-      <div className="form-group">
-        <h3>Mode of Payment</h3>
-        <select name="paymentMode" onChange={handleChange} value={form.paymentMode}>
-          <option value="UPI">UPI</option>
-          <option value="COD">Cash On Delivery</option>
-          <option value="Voucher">Voucher Code</option>
-        </select>
-      </div>
+        <div className="form-group">
+          <h3>Mode of Payment</h3>
+          <select
+            name="paymentMode"
+            onChange={handleChange}
+            value={form.paymentMode}
+          >
+            <option value="UPI">UPI</option>
+            <option value="COD">Cash On Delivery</option>
+            <option value="Voucher">Voucher Code</option>
+          </select>
+        </div>
 
-      <button 
-        onClick={handleSubmit} 
-        disabled={isSubmitting}
-        className={isSubmitting ? 'submitting' : ''}
-      >
-        {isSubmitting ? 'Processing...' : 'Proceed to Buy'}
-      </button>
+        <button
+          type="submit"
+          disabled={isSubmitting}
+          className={isSubmitting ? 'submitting' : ''}
+        >
+          {isSubmitting ? 'Processing...' : 'Proceed to Buy'}
+        </button>
+      </form>
     </div>
   );
 };

@@ -42,6 +42,7 @@ import ForgetPassword from "./ForgetPassword";
 import AdminPanel from "./AdminPanel";
 import Product from "./Product";
 
+
 // ✅ Separate location logic (needed for AnimatePresence)
 const AppRoutes = () => {
   const location = useLocation();
