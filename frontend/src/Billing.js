@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { clearCart } from './redux/cartSlice';
+import { jwtDecode } from 'jwt-decode'; // Corrected import statement
 
 const Billing = () => {
   const [form, setForm] = useState({
@@ -58,54 +59,71 @@ const Billing = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!validateForm() || isSubmitting) return;
+    if (!validateForm() || isSubmitting || cart.items.length === 0) return;
 
     setIsSubmitting(true);
 
     try {
+      // Verify backend connectivity first
+      try {
+        await fetch('http://localhost:5000/api/health');
+      } catch (err) {
+        throw new Error('Server is unavailable. Please try again later.');
+      }
+
+      // Get user ID from JWT token
+      const token = localStorage.getItem('token');
+      if (!token) {
+        throw new Error('Authentication required. Please login again.');
+      }
+
+      let userId;
+      try {
+        const decoded = jwtDecode(token);
+        userId = decoded.userId || decoded.sub; // Try common JWT ID fields
+        if (!userId) {
+          throw new Error('User ID not found in token');
+        }
+      } catch (decodeError) {
+        console.error('Token decode error:', decodeError);
+        throw new Error('Invalid session. Please login again.');
+      }
+
       const fullAddress = `${form.address}, ${form.nearbyLocation}, ${form.pincode}`;
       
-      // Create array of order promises for each cart item
       const orderPromises = cart.items.map(item => {
         const orderData = {
-          user_id: null, // Should be handled via authentication in real app
+          user_id: userId,
           product_id: item.id,
           quantity: item.quantity,
           total_price: item.price * item.quantity,
           address: fullAddress,
-          customer_email: form.email, // Additional field for backend reference
-          customer_phone: form.phone
+          customer_email: form.email,
+          customer_phone: form.phone,
+          payment_mode: form.paymentMode
         };
 
-        return fetch('http://localhost:5000/orders/createOrder', {
+        return fetch('http://localhost:5000/api/orders/createOrder', {
           method: 'POST',
           headers: { 
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${localStorage.getItem('token') || ''}`
+            'Authorization': `Bearer ${token}`
           },
           body: JSON.stringify(orderData)
+        }).then(async response => {
+          const data = await response.json().catch(() => ({}));
+          if (!response.ok) {
+            const errorMsg = data.message || 
+              (response.status === 401 ? 'Session expired' : 
+               response.status === 400 ? 'Invalid request data' :
+               'Order creation failed');
+            throw new Error(`Item ${item.name || item.id}: ${errorMsg}`);
+          }
+          return data;
         });
       });
 
-      // Execute all order creations
-      const responses = await Promise.all(orderPromises);
-      
-      // Check for any failed responses
-      const errors = await Promise.all(
-        responses.map(response => 
-          response.ok ? null : response.json().then(err => err.error)
-        )
-      );
-      
-      const hasErrors = errors.some(error => error !== null);
-      if (hasErrors) {
-        throw new Error(errors.find(error => error !== null) || 'Order creation failed');
-      }
-
-      // Get all created order IDs
-      const results = await Promise.all(
-        responses.map(response => response.json())
-      );
+      const results = await Promise.all(orderPromises);
       const orderIds = results.map(result => result.id);
 
       dispatch(clearCart());
@@ -118,7 +136,11 @@ const Billing = () => {
       });
     } catch (error) {
       console.error('Order submission failed:', error);
-      alert(`❌ Failed to place order. Please try again.\nError: ${error.message}`);
+      alert(`❌ ${error.message}`);
+      if (error.message.includes('Session') || error.message.includes('Authentication')) {
+        // Redirect to login if auth issues
+        navigate('/login', { state: { from: '/billing' } });
+      }
     } finally {
       setIsSubmitting(false);
     }
@@ -129,7 +151,6 @@ const Billing = () => {
       <h2>Fill your Billing Address</h2>
 
       <form onSubmit={handleSubmit}>
-        {/* All your existing form fields remain unchanged */}
         <div className="form-group">
           <input
             name="firstName"

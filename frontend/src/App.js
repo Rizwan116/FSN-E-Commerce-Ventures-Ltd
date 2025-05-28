@@ -41,6 +41,7 @@ import Login from "./Login";
 import ForgetPassword from "./ForgetPassword";
 import AdminPanel from "./AdminPanel";
 import Product from "./Product";
+import Review from "./Review"; // ✅ Import your CSS file
 
 
 // ✅ Separate location logic (needed for AnimatePresence)
@@ -82,6 +83,7 @@ const AppRoutes = () => {
           <Route path="/cart" element={<CartPage />} />
           <Route path="/billing" element={<Billing />} />
           <Route path="/signup" element={<Signup />} />
+           <Route path="/review" element={<Review />} />
           <Route path="/login" element={<Login />} />
           <Route path="/forget-password" element={<ForgetPassword />} />
           <Route path="/adminpanel" element={<AdminPanel />} />
